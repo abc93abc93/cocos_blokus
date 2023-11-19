@@ -1,237 +1,217 @@
-import { _decorator, Color, Component, instantiate, Node, Prefab, Sprite, UITransform, Vec3 } from 'cc';
-import { chess } from './chess';
+import {
+	_decorator,
+	Component,
+	instantiate,
+	Label,
+	Prefab,
+	Sprite,
+	Vec3,
+	Color,
+	UITransform,
+} from "cc";
+
 const { ccclass, property } = _decorator;
 
-type placedPosition = { x: number, y: number }[]
-
-@ccclass('board')
+@ccclass("board")
 export class board extends Component {
+	@property(Prefab)
+	board_block: Prefab;
 
-  @property(Prefab)
-  board_block: Prefab;
+	_n = 20;
+	_bias = this._n / 2;
+	_matrix = Array.from(Array(this._n), () => new Array(this._n).fill(0));
+	_matrix_vector = [];
+	_block_size = 25;
+	_render_matrix = Array.from(Array(this._n), () =>
+		new Array(this._n).fill(null)
+	);
 
-  @property(Node)
-  chess: Node;
+	chess = [
+		[-1, 0],
+		[0, 0],
+		[1, 0],
+	];
 
-  @property(Node)
-  block2: Node;
+	center = [0, 0];
 
+	availablePosition = [0, 0];
 
-  board = [];
-  UIboard = [];
-  _board_size = 20;
-  chesses = [];
-  choosed_chess = null;
-  placedPositions: placedPosition = [];
+	onLoad() {
+		this.setBoardVector();
+		this.setBoard();
+	}
 
-  //player
-  color = '';
-  corner = [0, 0];
-  validPosition = [];
+	start() {
+		this._matrix[0][0] = 1;
+		const position = this.getAvailablePosition([0, 0], this.chess);
+		console.log("position", position);
 
+		this.renderChessPosition(position);
+	}
 
-  protected onLoad(): void {
-    this.setBoardData();
-    this.setBoard();
+	setBoardVector() {
+		for (let x = 0; x < this._n; x++) {
+			for (let y = 0; y < this._n; y++) {
+				this._matrix_vector.push([x, y]);
+			}
+		}
+	}
 
-    this.chesses.push(this.chess, this.block2)
-  }
+	setBoard() {
+		this._matrix_vector.forEach((vector) => {
+			const [x, y] = vector;
+			const block = instantiate(this.board_block);
 
-  start() {
-    this.checkValidPosition()
-  }
+			block.setPosition(
+				new Vec3(
+					(x - this._bias) * this._block_size,
+					(y - this._bias) * this._block_size,
+					0
+				)
+			);
 
-  // M
-  setBoardData() {
-    for (let i = 0; i < this._board_size; i++) {
-      let arr = [];
-      for (let x = 0; x < this._board_size; x++) {
-        arr.push(0);
-      }
-      this.board.push(arr)
-    }
-  }
+			this._render_matrix[x][y] = block;
 
-  // V
-  setBoard() {
+			//設置數據 (之後刪)
+			const label = block.getChildByName("Label");
+			label.getComponent(Label).string = `${x}${y}`;
 
-    for (let x = 0 - (this.board.length / 2); x < (this.board.length / 2); x++) {
-      let arr = [];
-      for (let y = 0 - (this.board.length / 2); y < (this.board.length / 2); y++) {
-        const boardBlock = instantiate(this.board_block);
-        const size = boardBlock.getComponent(UITransform).contentSize.x
-        boardBlock.setPosition(new Vec3(x * size, y * size, 0))
-        const boardBlockWordPosition = boardBlock.getWorldPosition();
-        const boardWorldPosition = this.node.getWorldPosition();
-        arr.push({
-          boardBlock: boardBlock,
-          worldPosition: boardWorldPosition.add(boardBlockWordPosition)
-        });
-        this.node.addChild(boardBlock);
-      }
-      this.UIboard.push(arr)
-    }
-  }
+			this.node.addChild(block);
+		});
+	}
 
-  chessMove() {
+	getAvailablePosition(initPlace, chess) {
+		const array = [];
 
-    this.chesses.forEach((chesses) => {
+		const [x, y] = initPlace;
 
-      //如果有點到棋子把它設為點到的棋子
-      if (!this.choosed_chess) {
-        if (chesses.getComponent(chess).movable === false) return
-        if (chesses.getComponent(chess).chosed === true) {
+		if (this._matrix[x][y] === 0) {
+			const places = this.findChessPosition(chess, initPlace);
+			if (places.length === 0) return array;
+			array.push(...places);
+			return array;
+		}
+		const allCorner = this.findAllCorner();
+		const availableCorner = this.findAvailableCorner(allCorner);
 
-          this.choosed_chess = chesses;
-          this.choosed_chess.getComponent(chess).drag = true;
-        }
-      }
+		for (let i = 0; i < availableCorner.length; i++) {
+			const places = this.findChessPosition(chess, availableCorner[i]);
+			if (places.length === 0) continue;
+			array.push(...places);
+		}
 
-      //選的棋子不能動了那就是放到位置上了
-      if (this.choosed_chess && this.choosed_chess.getComponent(chess).movable === false) {
-        this.setValidPosition(this.choosed_chess.getComponent(chess).positionInBoard, this.choosed_chess.getComponent(chess).corner)
-        this.checkValidPosition();
-        this.choosed_chess = null;
-      }
+		return array;
+	}
 
-      //如果當前棋子被選了但他不能拖拉則重設
-      if (
-        this.choosed_chess &&
-        chesses !== this.choosed_chess &&
-        chesses.getComponent(chess).chosed === true &&
-        chesses.getComponent(chess).drag === false
-      ) {
-        this.choosed_chess.getComponent(chess).chosed = false;
-        this.choosed_chess.getComponent(chess).drag = false;
-        this.choosed_chess = chesses;
-        this.choosed_chess.getComponent(chess).drag = true;
-      }
-    })
-  }
+	renderChessPosition(places) {
+		if (places.length === 0) return;
+		for (let index = 0; index < places.length; index++) {
+			const [x, y] = places[index];
 
-  checkChess(chess, position: [number, number][]) {
+			console.log(x, y, this._render_matrix[x][y].getComponent(Sprite));
 
-    const chessMatrix = chess.getComponent(chess).array
-    const chessCenter = chess.getComponent(chess).center
+			this._render_matrix[x][y].getComponent(Sprite).color = new Color(
+				255,
+				255,
+				35
+			);
+		}
+	}
 
+	//從可放置的角落點找到所選取block可放置的點
+	findChessPosition(chess, point) {
+		const points = [];
 
-    for (let board_x = 0; board_x < this.board.length; board_x++) {
-      for (let board_y = 0; board_y < this.board[board_x].length; board_y++) {
+		chess.forEach((element) => {
+			const [pointX, pointY] = point;
+			const [x, y] = element;
 
-        //放置超出線(大方向)
-        if (board_x + chessMatrix.length > this._board_size || board_y + chessMatrix[0].length > this._board_size) {
-          continue
-        }
+			const biasX = pointX - x;
+			const biasY = pointY - y;
 
-        //放上這個位置的chess在board上的位置
-        const arr = [];
-        const arr2 = [];
-        const centerInBoard = { x: 0, y: 0 };
+			const chessPoint = chess.every((element) => {
+				const [elementX, elementY] = element;
 
-        for (let x = 0; x < chessMatrix.length; x++) {
-          for (let y = 0; y < chessMatrix[x].length; y++) {
+				if (
+					elementX + biasX >= 0 &&
+					elementX + biasX <= this._matrix.length &&
+					elementY + biasY >= 0 &&
+					elementY + biasY <= this._matrix.length
+				) {
+					if (this._matrix[elementX + biasX][elementY + biasY] === 0)
+						return true;
+					return false;
+				}
+				return false;
+			});
 
-            arr2.push([board_x + x, board_y + y])
-            if (this.board[board_x + x][board_y + y] !== 0) continue;
+			if (chessPoint) {
+				points.push([this.center[0] + biasX, this.center[1] + biasY]);
+			}
+		});
 
-            if (chessMatrix[x][y] === 1) {
-              arr.push([board_x + x, board_y + y])
+		return points;
+	}
 
-              if (x === chessCenter.x && y === chessCenter.y) {
-                centerInBoard.x = board_x + x;
-                centerInBoard.y = board_y + y;
-              }
-            }
+	//先找到有放置的斜對角
+	findAllCorner() {
+		const position = [];
 
-          }
-        }
+		this._matrix_vector.forEach((vector) => {
+			const [x, y] = vector;
 
+			if (this._matrix[x][y] === 1) {
+				if (y - 1 >= 0 && x - 1 >= 0 && this._matrix[x - 1][y - 1] === 0) {
+					position.push([x - 1, y - 1]);
+				}
 
-        //確定放的位置有可以放置的點
-        const confirmPosition = arr.some(([x, y]) => {
-          return position.some(([a, b]) => x === a && y === b)
-        })
+				if (
+					y - 1 >= 0 &&
+					x + 1 < this._matrix.length &&
+					this._matrix[x + 1][y - 1] === 0
+				) {
+					position.push([x + 1, y - 1]);
+				}
 
-        const confirmPosition2 = arr2.every(([a, b]) => this.board[a][b] === 0)
+				if (
+					x - 1 >= 0 &&
+					y + 1 < this._matrix[x].length &&
+					this._matrix[x - 1][y + 1] === 0
+				) {
+					position.push([x - 1, y + 1]);
+				}
 
-        if (!confirmPosition) continue;
-        if (!confirmPosition2) continue;
+				if (
+					x + 1 < this._matrix.length &&
+					y + 1 < this._matrix[x].length &&
+					this._matrix[x + 1][y + 1] === 0
+				) {
+					position.push([x + 1, y + 1]);
+				}
+			}
+		});
+		return position;
+	}
 
-        this.placedPositions.push(centerInBoard)
+	//再看斜對角中適合放的位置
+	findAvailableCorner(array) {
+		const position = {};
 
-      }
-    }
-  }
+		for (let index = 0; index < array.length; index++) {
+			const [x, y] = array[index];
 
-  setValidPosition(position, conerArr) {
+			if (x - 1 >= 0 && this._matrix[x - 1][y] !== 0) continue;
+			if (y - 1 >= 0 && this._matrix[x][y - 1] !== 0) continue;
+			if (x + 1 <= this._matrix.length && this._matrix[x + 1][y] !== 0)
+				continue;
+			if (y + 1 <= this._matrix.length && this._matrix[x][y + 1] !== 0)
+				continue;
 
-    this.board[position[0]][position[1]] = 1;
+			position[`${[x, y]}`] = [x, y];
+		}
 
-    conerArr.forEach(([x, y]) => {
-      if (x + position[0] >= 0 && x + position[0] <= 20 && y + position[1] >= 0 && y + position[1] <= 20) {
-        this.validPosition.push([x + position[0], y + position[1]])
-      }
-    })
-  }
+		return Object.values(position);
+	}
 
-  checkValidPosition() {
-    const x = this.corner[0];
-    const y = this.corner[1]
-
-    if (!this.board[x][y]) this.validPosition.push([x, y]);
-
-
-
-    //篩掉可放位置裡已被佔的位置
-    this.validPosition = this.validPosition.filter((el) => this.board[el[0], el[1]] !== 1);
-  }
-  // arr.forEach(([x, y]) => {
-  //   board[x][y] = 1;
-  // })
-
-  setPlacedPositionColor(places: placedPosition): void {
-    places.forEach(({ x, y }) => {
-      this.UIboard[x][y].boardBlock.getComponent(Sprite).color = new Color(255, 255, 255)
-    })
-  }
-
-  resetPlacedPositionColor(places: placedPosition): void {
-    places.forEach(({ x, y }) => {
-      this.UIboard[x][y].boardBlock.getComponent(Sprite).color = new Color(126, 126, 126)
-    })
-
-  }
-
-  getUIPlacedPosition(placedPosition: placedPosition) {
-
-    return placedPosition.map(({ x, y }) => {
-      return {
-        positionInBoard: [x, y],
-        worldPosition: this.UIboard[x][y].worldPosition
-      }
-    })
-  }
-
-  update(deltaTime: number) {
-
-    // console.log(this.validPosition);
-
-    let choosed_chess = null;
-
-    if (!this.choosed_chess || choosed_chess !== this.choosed_chess) {
-      choosed_chess = this.choosed_chess;
-      this.resetPlacedPositionColor(this.placedPositions)
-      this.placedPositions = [];
-    }
-
-    this.chessMove();
-
-    if (choosed_chess && this.placedPositions.length === 0) {
-      this.checkChess(choosed_chess, this.validPosition);
-      this.setPlacedPositionColor(this.placedPositions)
-      choosed_chess.getComponent(chess).targetArr = this.getUIPlacedPosition(this.placedPositions);
-    }
-
-
-  }
+	update(deltaTime: number) {}
 }
