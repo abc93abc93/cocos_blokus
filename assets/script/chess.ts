@@ -31,57 +31,52 @@ export class chess extends Component {
 
 	movable = false;
 
-	onLoad() {
-		this.init();
-		this.setChess();
-		this.setChessVector();
-	}
-
 	start() {
-		this.node.on(Node.EventType.TOUCH_START, this.choseChess, this);
+		// this.node.on(Node.EventType.TOUCH_START, this.choseChess, this);
 	}
 
-	choseChess(event: EventTouch) {}
+	choseChess(event: EventTouch) { }
 
 	init() {
-		this._array = this.matrix.map((string) =>
-			string.split("").map((el) => Number(el))
-		);
+		// this._array = this.matrix.map((string) =>
+		// 	string.split("").map((el) => Number(el))
+		// );
 
-		this._center = [Number(this.center_X), Number(this.center_Y)];
+		// this._center = [Number(this.center_X), Number(this.center_Y)];
 	}
 
-	setChessVector() {
-		const [centerX, centerY] = this._center;
+	// setChessVector() {
+	// 	const [centerX, centerY] = this._center;
 
-		for (let x = 0; x < this._array.length; x++) {
-			for (let y = 0; y < this._array[x].length; y++) {
-				if (this._array[x][y] === 0) continue;
-				this._array_vector.push([x - centerX, y - centerY]);
-			}
-		}
-	}
+	// 	for (let x = 0; x < this._array.length; x++) {
+	// 		for (let y = 0; y < this._array[x].length; y++) {
+	// 			if (this._array[x][y] === 0) continue;
 
-	setChess() {
-		for (let x = 0; x < this._array.length; x++) {
-			for (let y = 0; y < this._array[x].length; y++) {
-				if (!this._array[x][y]) continue;
+	// 			this._array_vector.push([x - centerX, y - centerY]);
+	// 		}
+	// 	}
+	// }
 
-				const [centerX, centerY] = this._center;
-				const block = instantiate(this.block);
+	// setChess() {
+	// 	for (let x = 0; x < this._array.length; x++) {
+	// 		for (let y = 0; y < this._array[x].length; y++) {
+	// 			if (!this._array[x][y]) continue;
 
-				block.setPosition(
-					new Vec3((x - centerX) * this._size, (y - centerY) * this._size, 0)
-				);
+	// 			const [centerX, centerY] = this._center;
+	// 			const block = instantiate(this.block);
 
-				//設置數據 (之後刪)
-				const label = block.getChildByName("Label");
-				label.getComponent(Label).string = `${x}${y}`;
+	// 			block.setPosition(
+	// 				new Vec3((x - centerX) * this._size, (y - centerY) * this._size, 0)
+	// 			);
 
-				this.node.addChild(block);
-			}
-		}
-	}
+	// 			//設置數據 (之後刪)
+	// 			const label = block.getChildByName("Label");
+	// 			label.getComponent(Label).string = `${x}${y}`;
+
+	// 			this.node.addChild(block);
+	// 		}
+	// 	}
+	// }
 
 	//   choseChess(event: EventTouch) {
 	//     if (!this.movable) return
@@ -126,7 +121,7 @@ export class chess extends Component {
 	//   }
 
 	protected onDestroy(): void {
-		this.node.on(Node.EventType.TOUCH_START, this.choseChess, this);
+		// this.node.on(Node.EventType.TOUCH_START, this.choseChess, this);
 		// this.node.on(Node.EventType.TOUCH_MOVE, this.moveChess, this);
 		// this.node.on(Node.EventType.TOUCH_END, this.moveChessEnd, this)
 		// this.node.on(Node.EventType.TOUCH_CANCEL, this.setDafaultPosition, this)

@@ -7,8 +7,12 @@ import {
 	Sprite,
 	Vec3,
 	Color,
+	EventTouch,
+	Node,
 	UITransform,
 } from "cc";
+import { chess } from "./chess";
+import { boardBlock } from "./boardBlock";
 
 const { ccclass, property } = _decorator;
 
@@ -17,55 +21,38 @@ export class board extends Component {
 	@property(Prefab)
 	board_block: Prefab;
 
-	_n = 20;
-	_bias = this._n / 2;
-	_matrix = Array.from(Array(this._n), () => new Array(this._n).fill(0));
-	_matrix_vector = [];
-	_block_size = 25;
-	_render_matrix = Array.from(Array(this._n), () =>
-		new Array(this._n).fill(null)
-	);
+	_block_size = 35;
+	_bias: number;
+	_render_matrix: Node[][]
 
-	chess = [
-		[-1, 0],
-		[0, 0],
-		[1, 0],
-	];
+	// chess = [
+	// 	[-1, 0],
+	// 	[0, 0],
+	// 	[1, 0],
+	// ];
 
-	center = [0, 0];
+	// center = [0, 0];
 
-	availablePosition = [0, 0];
-
-	onLoad() {
-		this.setBoardVector();
-		this.setBoard();
-	}
+	// availablePosition = [0, 0];
 
 	start() {
-		this._matrix[0][0] = 1;
-		const position = this.getAvailablePosition([0, 0], this.chess);
-		console.log("position", position);
-
-		this.renderChessPosition(position);
+		// this.node.on(Node.EventType.TOUCH_START, this.clickBlock, this);
 	}
 
-	setBoardVector() {
-		for (let x = 0; x < this._n; x++) {
-			for (let y = 0; y < this._n; y++) {
-				this._matrix_vector.push([x, y]);
-			}
-		}
-	}
+	init(boardClass) {
 
-	setBoard() {
-		this._matrix_vector.forEach((vector) => {
+		this._bias = boardClass._size / 2;
+		this._render_matrix = boardClass._matrix;
+
+		boardClass._matrix_vector.forEach((vector) => {
 			const [x, y] = vector;
 			const block = instantiate(this.board_block);
+			block.getComponent(UITransform).setContentSize(this._block_size, this._block_size)
 
 			block.setPosition(
 				new Vec3(
-					(x - this._bias) * this._block_size,
-					(y - this._bias) * this._block_size,
+					(x - this._bias) * this._block_size + (this._block_size / 2),
+					(y - this._bias) * this._block_size + (this._block_size / 2),
 					0
 				)
 			);
@@ -80,138 +67,175 @@ export class board extends Component {
 		});
 	}
 
-	getAvailablePosition(initPlace, chess) {
-		const array = [];
+	// clickBlock(event: EventTouch) {
+	// 	const target = this.node.getChildByName(event.target.name);
 
-		const [x, y] = initPlace;
+	// 	if (target) {
+	// 		console.log(target.getComponent(boardBlock).isClick);
 
-		if (this._matrix[x][y] === 0) {
-			const places = this.findChessPosition(chess, initPlace);
-			if (places.length === 0) return array;
-			array.push(...places);
-			return array;
-		}
-		const allCorner = this.findAllCorner();
-		const availableCorner = this.findAvailableCorner(allCorner);
+	// 		if (target.getComponent(boardBlock).isClick) console.log("oooook！");
+	// 	}
+	// }
 
-		for (let i = 0; i < availableCorner.length; i++) {
-			const places = this.findChessPosition(chess, availableCorner[i]);
-			if (places.length === 0) continue;
-			array.push(...places);
-		}
 
-		return array;
-	}
+	// handlerAvailablePosition(chessNode) {
+	// 	const position = this.getAvailablePosition([0, 0], chessNode);
+	// 	this.renderChessPosition(position);
 
-	renderChessPosition(places) {
-		if (places.length === 0) return;
-		for (let index = 0; index < places.length; index++) {
-			const [x, y] = places[index];
+	// 	return position;
+	// }
 
-			console.log(x, y, this._render_matrix[x][y].getComponent(Sprite));
+	//獲取可以放置的點
+	// getAvailablePosition(initPlace, chessNode) {
+	// 	const array = [];
 
-			this._render_matrix[x][y].getComponent(Sprite).color = new Color(
-				255,
-				255,
-				35
-			);
-		}
-	}
+	// 	const [x, y] = initPlace;
+
+	// 	if (this._matrix[x][y] === 0) {
+	// 		const places = this.findChessPosition(chessNode, initPlace);
+	// 		if (places.length === 0) return array;
+	// 		array.push(...places);
+	// 		return array;
+	// 	}
+	// 	const allCorner = this.findAllCorner();
+	// 	const availableCorner = this.findAvailableCorner(allCorner);
+
+	// 	for (let i = 0; i < availableCorner.length; i++) {
+	// 		const places = this.findChessPosition(chessNode, availableCorner[i]);
+	// 		if (places.length === 0) continue;
+	// 		array.push(...places);
+	// 	}
+
+	// 	return array;
+	// }
+
+	//渲染可以放置的點
+	// renderChessPosition(places) {
+	// 	if (places.length === 0) return;
+
+	// 	for (let index = 0; index < places.length; index++) {
+	// 		const [x, y] = places[index];
+
+	// 		this._render_matrix[x][y].getComponent(Sprite).color = new Color(
+	// 			255,
+	// 			255,
+	// 			35
+	// 		);
+
+	// 		this._render_matrix[x][y].getComponent(boardBlock).isClick = true;
+	// 	}
+	// }
+
+	// resetRenderChessPosition() {
+	// 	for (let index = 0; index < this._matrix_vector.length; index++) {
+	// 		const [x, y] = this._matrix_vector[index];
+
+	// 		if (this._matrix[x][y] === 0) {
+	// 			this._render_matrix[x][y].getComponent(Sprite).color = new Color(
+	// 				255,
+	// 				255,
+	// 				255
+	// 			);
+	// 			this._render_matrix[x][y].getComponent(boardBlock).isClick = false;
+	// 		}
+	// 	}
+	// }
 
 	//從可放置的角落點找到所選取block可放置的點
-	findChessPosition(chess, point) {
-		const points = [];
+	// findChessPosition(chessNode, point) {
+	// 	const points = [];
+	// 	const chessTs = chessNode.getComponent(chess);
 
-		chess.forEach((element) => {
-			const [pointX, pointY] = point;
-			const [x, y] = element;
+	// 	chessTs._array_vector.forEach((element, index) => {
+	// 		const [pointX, pointY] = point;
+	// 		const [x, y] = element;
 
-			const biasX = pointX - x;
-			const biasY = pointY - y;
+	// 		const biasX = pointX - x;
+	// 		const biasY = pointY - y;
 
-			const chessPoint = chess.every((element) => {
-				const [elementX, elementY] = element;
+	// 		const chessPoint = chessTs._array_vector.every((element) => {
+	// 			const [elementX, elementY] = element;
 
-				if (
-					elementX + biasX >= 0 &&
-					elementX + biasX <= this._matrix.length &&
-					elementY + biasY >= 0 &&
-					elementY + biasY <= this._matrix.length
-				) {
-					if (this._matrix[elementX + biasX][elementY + biasY] === 0)
-						return true;
-					return false;
-				}
-				return false;
-			});
+	// 			if (
+	// 				elementX + biasX >= 0 &&
+	// 				elementX + biasX <= this._matrix.length &&
+	// 				elementY + biasY >= 0 &&
+	// 				elementY + biasY <= this._matrix.length
+	// 			) {
+	// 				if (this._matrix[elementX + biasX][elementY + biasY] === 0)
+	// 					return true;
+	// 				return false;
+	// 			}
+	// 			return false;
+	// 		});
 
-			if (chessPoint) {
-				points.push([this.center[0] + biasX, this.center[1] + biasY]);
-			}
-		});
+	// 		if (chessPoint) {
+	// 			points.push([biasX, biasY]);
+	// 		}
+	// 	});
 
-		return points;
-	}
+	// 	return points;
+	// }
 
 	//先找到有放置的斜對角
-	findAllCorner() {
-		const position = [];
+	// findAllCorner() {
+	// 	const position = [];
 
-		this._matrix_vector.forEach((vector) => {
-			const [x, y] = vector;
+	// 	this._matrix_vector.forEach((vector) => {
+	// 		const [x, y] = vector;
 
-			if (this._matrix[x][y] === 1) {
-				if (y - 1 >= 0 && x - 1 >= 0 && this._matrix[x - 1][y - 1] === 0) {
-					position.push([x - 1, y - 1]);
-				}
+	// 		if (this._matrix[x][y] === 1) {
+	// 			if (y - 1 >= 0 && x - 1 >= 0 && this._matrix[x - 1][y - 1] === 0) {
+	// 				position.push([x - 1, y - 1]);
+	// 			}
 
-				if (
-					y - 1 >= 0 &&
-					x + 1 < this._matrix.length &&
-					this._matrix[x + 1][y - 1] === 0
-				) {
-					position.push([x + 1, y - 1]);
-				}
+	// 			if (
+	// 				y - 1 >= 0 &&
+	// 				x + 1 < this._matrix.length &&
+	// 				this._matrix[x + 1][y - 1] === 0
+	// 			) {
+	// 				position.push([x + 1, y - 1]);
+	// 			}
 
-				if (
-					x - 1 >= 0 &&
-					y + 1 < this._matrix[x].length &&
-					this._matrix[x - 1][y + 1] === 0
-				) {
-					position.push([x - 1, y + 1]);
-				}
+	// 			if (
+	// 				x - 1 >= 0 &&
+	// 				y + 1 < this._matrix[x].length &&
+	// 				this._matrix[x - 1][y + 1] === 0
+	// 			) {
+	// 				position.push([x - 1, y + 1]);
+	// 			}
 
-				if (
-					x + 1 < this._matrix.length &&
-					y + 1 < this._matrix[x].length &&
-					this._matrix[x + 1][y + 1] === 0
-				) {
-					position.push([x + 1, y + 1]);
-				}
-			}
-		});
-		return position;
-	}
+	// 			if (
+	// 				x + 1 < this._matrix.length &&
+	// 				y + 1 < this._matrix[x].length &&
+	// 				this._matrix[x + 1][y + 1] === 0
+	// 			) {
+	// 				position.push([x + 1, y + 1]);
+	// 			}
+	// 		}
+	// 	});
+	// 	return position;
+	// }
 
 	//再看斜對角中適合放的位置
-	findAvailableCorner(array) {
-		const position = {};
+	// findAvailableCorner(array) {
+	// 	const position = {};
 
-		for (let index = 0; index < array.length; index++) {
-			const [x, y] = array[index];
+	// 	for (let index = 0; index < array.length; index++) {
+	// 		const [x, y] = array[index];
 
-			if (x - 1 >= 0 && this._matrix[x - 1][y] !== 0) continue;
-			if (y - 1 >= 0 && this._matrix[x][y - 1] !== 0) continue;
-			if (x + 1 <= this._matrix.length && this._matrix[x + 1][y] !== 0)
-				continue;
-			if (y + 1 <= this._matrix.length && this._matrix[x][y + 1] !== 0)
-				continue;
+	// 		if (x - 1 >= 0 && this._matrix[x - 1][y] !== 0) continue;
+	// 		if (y - 1 >= 0 && this._matrix[x][y - 1] !== 0) continue;
+	// 		if (x + 1 <= this._matrix.length && this._matrix[x + 1][y] !== 0)
+	// 			continue;
+	// 		if (y + 1 <= this._matrix.length && this._matrix[x][y + 1] !== 0)
+	// 			continue;
 
-			position[`${[x, y]}`] = [x, y];
-		}
+	// 		position[`${[x, y]}`] = [x, y];
+	// 	}
 
-		return Object.values(position);
-	}
+	// 	return Object.values(position);
+	// }
 
-	update(deltaTime: number) {}
+	update(deltaTime: number) { }
 }
