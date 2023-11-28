@@ -14,28 +14,25 @@ export class playerSection extends Component {
     init(playerClassArr) {
         const allPlayerTs = this.node.getComponentsInChildren(player)
         allPlayerTs.forEach((player, index) => {
-            player.playerId = index;
-            player.chesses = playerClassArr[index].chesses;
+            player.id = playerClassArr[index].id;
+            player.index = playerClassArr[index].index;
+            // player.chesses = playerClassArr[index].chesses;
             player.color = playerClassArr[index].color;
         });
+        this.renderCurPlayer(playerClassArr);
     }
 
-    renderCurPlayer(curPlayer) {
+    renderCurPlayer(playerClassArr) {
         const allPlayerTs = this.node.getComponentsInChildren(player)
-        allPlayerTs.forEach(player => {
+        allPlayerTs.forEach((player, index) => {
             player.setOriginColor();
-            player.turn = false;
-
-            if (player.playerId === curPlayer) {
-                player.turn = true;
-                player.setNewColor();
-            }
-        });
+            if (playerClassArr[index].turn) player.setNewColor();
+        })
     }
 
-    resetColor() {
+    // resetColor() {
 
-    }
+    // }
 
     update(deltaTime: number) {
 

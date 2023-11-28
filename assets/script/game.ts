@@ -20,10 +20,10 @@ export class game extends Component {
 	onLoad() {
 		//載入遊戲
 		this.blokusGame = new BlokusGame(
-			new Player(new Color(255, 232, 232), 0),
-			new Player(new Color(255, 247, 232), 1),
-			new Player(new Color(242, 255, 242), 2),
-			new Player(new Color(242, 255, 255), 3),
+			new Player('peter', 0, new Color(255, 232, 232)),
+			new Player('kiki', 1, new Color(255, 247, 232)),
+			new Player('amy', 2, new Color(242, 255, 242)),
+			new Player('brian', 3, new Color(242, 255, 255)),
 		);
 		this.blokusGame.init();
 		this.initPlayersView(this.blokusGame.players);
@@ -31,8 +31,8 @@ export class game extends Component {
 
 		const that = this;
 		// this.onBoardChange(this.blokusGame.board, that)
-		this.onPlayerChange(this.blokusGame.curPlayer, that)
-		this.blokusGame.bindPlayerChange(this.onPlayerChange, that);
+		// this.onPlayerChange(this.blokusGame.curPlayer, that)
+		// this.blokusGame.bindPlayerChange(this.onPlayerChange, that);
 	}
 
 	start() {
@@ -52,21 +52,25 @@ export class game extends Component {
 	}
 
 	//換玩家
-	handlerPlayerChange(playerDone, playerPassed) {
-		this.blokusGame.changePlayer(playerDone, playerPassed)
+	handlerPlayerPassed() {
+		this.blokusGame.setPlayerPassed();
+		this.blokusGame.isGameGoing();
+
+		const playerSectionTs = this.PlayerSection.getComponent(playerSection)
+		playerSectionTs.renderCurPlayer(this.blokusGame.players);
 	}
 
 	//玩家
-	onPlayerChange(curPlayer, that) {
-		const playerSectionTs = that.PlayerSection.getComponent(playerSection);
-		playerSectionTs.renderCurPlayer(curPlayer);
-	}
+	// onPlayerChange(curPlayer, that) {
+	// 	const playerSectionTs = that.PlayerSection.getComponent(playerSection);
+	// 	playerSectionTs.renderCurPlayer(curPlayer);
+	// }
 
 	//棋盤
-	onBoardChange(board, that) {
-		const boardTs = that.Board.getComponent(board)
-		boardTs.renderBoard(board);
-	}
+	// onBoardChange(board, that) {
+	// 	const boardTs = that.Board.getComponent(board)
+	// 	boardTs.renderBoard(board);
+	// }
 
 	//玩家輪流玩
 	clickNode(event: EventTouch) {
@@ -74,10 +78,9 @@ export class game extends Component {
 		//換玩家條件 -> 玩家按passed & 玩家放完棋子
 		// console.log(event.target.name);
 		if (event.target.name === 'PassedBtn') {
-			const playerTs = event.target.parent.getComponent(player);
-			console.log(playerTs.passed);
-
-			this.handlerPlayerChange(playerTs.done, playerTs.passed)
+			const playerIndex = event.target.parent.getComponent(player).index;
+			if (playerIndex !== this.blokusGame.curPlayer) return
+			this.handlerPlayerPassed()
 		}
 
 

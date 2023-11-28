@@ -10,15 +10,15 @@ export class BlokusGame {
 		this.board = new Board();
 		this.players = [player1, player2, player3, player4];
 		this.curPlayer = 0; //下棋者
-		this.onPlayerChangeCallback = null;
-		this.onBoardChangeCallback = null;
-		this.thisInGameTs = null;
+		// this.onPlayerChangeCallback = null;
+		// this.onBoardChangeCallback = null;
+		// this.thisInGameTs = null;
 	}
 
 	init() {
 		//遊戲預加載的東東
 		this.board.init();
-		// this.players.forEach((player) => player.init());
+		this.players.forEach((player) => player.init(this.curPlayer));
 	}
 
 	// bindPlayerChange(callback, that) {
@@ -26,22 +26,35 @@ export class BlokusGame {
 	// 	this.thisInGameTs = that
 	// }
 
-	// commitChangeCurPlayer() {
-	// 	this.onPlayerChangeCallback(this.curPlayer, this.thisInGameTs);
-	// }
+	setPlayerTurn() {
+		this.players.forEach((player) => {
+			player.turn = player.index === this.curPlayer;
+		})
+	}
 
-	//更換玩家
-	changePlayer() {
+	setPlayerPassed() {
+		this.players[this.curPlayer].setPassed();
+	}
+
+	//遊戲是否繼續 -> 判斷結束遊戲 或是 更換玩家
+	isGameGoing() {
+
+		//檢查遊戲是否結束
+		if (this.isGameOver()) {
+			console.log('遊戲結束');
+			return
+		}
+
+		//如果玩家pass 或是 放完棋子 -> 更換玩家
 		if (this.players[this.curPlayer].passed || this.players[this.curPlayer].done) {
 			this.changeCurPlayer();
 
+			//如果下一個玩家已經pass -> 更換玩家
 			if (this.players[this.curPlayer].passed) {
 				this.changeCurPlayer();
 			}
 
-			if (this.isOver()) {
-				console.log('遊戲結束');
-			}
+
 		}
 	}
 
@@ -52,6 +65,8 @@ export class BlokusGame {
 		} else {
 			this.curPlayer += 1;
 		}
+
+		this.setPlayerTurn();
 	}
 
 
@@ -62,8 +77,8 @@ export class BlokusGame {
 
 
 	//判斷遊戲是否結束
-	isOver() {
-		//判斷標準 - 4個玩家都passed & 有玩家把棋子都放完
+	isGameOver() {
+		//判斷標準 - 4個玩家都pass & 有玩家把棋子都放完
 		const allPassed = this.players.every((player) => player.passed);
 		const noChess = this.players.some((player) => player.chesses.length === 0);
 
@@ -109,21 +124,23 @@ export class Board {
 }
 
 export class Player {
-	id: number;
-	chesses: [];
-	initPosition = []
+	id: string;
+	index: number;
+	chesses: Chess[];;
+	availablePosition = [];
 	chosed: null;
 	color: string;
 	done: boolean;
 	turn: boolean;
 	passed: boolean;
 
-	constructor(id, color) {
+	constructor(id, index, color) {
 
 		this.id = id;
+		this.index = index;
 
-		this.chesses = []; // 玩家有21個棋子
-		this.initPosition = []; //初始位置座標
+		this.chesses = [new Chess([[0]])]; // 玩家有21個棋子
+		this.availablePosition = []; //初始位置座標 & 能放的位置
 		this.chosed = null; //被選中的棋子
 
 		this.color = color; //代表的棋子顏色
@@ -132,12 +149,17 @@ export class Player {
 		this.passed = false; //玩家是否投降
 	}
 
-	//設置棋子
-	init() { }
+	//
+	init(curPlayer) {
+		this.setTurn(curPlayer);
+
+	}
+
+
 
 	//輪替
 	setTurn(player) {
-		this.turn = (this.id === player)
+		this.turn = (this.index === player)
 	}
 
 	//重置
@@ -157,8 +179,9 @@ export class Player {
 }
 
 
-class Chess {
+export class Chess {
 	matrix: [];
+
 	constructor(matrix) {
 		this.matrix = matrix;
 	}

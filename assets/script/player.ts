@@ -16,14 +16,12 @@ const { ccclass, property } = _decorator;
 @ccclass("player")
 export class player extends Component {
 
-	playerId = null;
+	id = null;
+	index = null;
 	color = null;
 	chesses = [];
 	turn = false;
 	chosed = null;
-
-	done = false; //是否放完棋子
-	passed = false; //是否棄權
 
 	start() {
 		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
@@ -41,20 +39,15 @@ export class player extends Component {
 	// 	this.passed = true;
 	// }
 
-
-	tt() {
-		this.done = true
-	}
-
 	clickNode(event: EventTouch) {
 
-		if (event.target.name === 'PassedBtn') {
-			this.passed = true
-		};
+		// if (event.target.name === 'PassedBtn') {
+		// 	this.passed = true
+		// };
 
-		if (!this.turn) {
-			event.propagationStopped = true;
-		}
+		// if (!this.turn) {
+		// 	event.propagationStopped = true;
+		// }
 
 
 	}
