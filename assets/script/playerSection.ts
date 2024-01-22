@@ -1,42 +1,66 @@
-import { _decorator, Component, Node, EventTouch } from 'cc';
-import { player } from './player';
+import { _decorator, Component, Node, EventTouch } from "cc";
+import { player } from "./player";
 const { ccclass, property } = _decorator;
 
-@ccclass('playerSection')
+@ccclass("playerSection")
 export class playerSection extends Component {
+	start() {
+		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
+	}
 
-    start() {
-        this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
-    }
+	clickNode(event: EventTouch) {}
 
-    clickNode(event: EventTouch) { }
+	init(playerClassArr) {
+		this.serPlayerData(playerClassArr);
+		this.renderCurPlayer(playerClassArr);
+	}
 
-    init(playerClassArr) {
-        const allPlayerTs = this.node.getComponentsInChildren(player)
-        allPlayerTs.forEach((player, index) => {
-            player.id = playerClassArr[index].id;
-            player.index = playerClassArr[index].index;
-            // player.chesses = playerClassArr[index].chesses;
-            player.color = playerClassArr[index].color;
-        });
-        this.renderCurPlayer(playerClassArr);
-    }
+	serPlayerData(playerClassArr) {
+		const allPlayerTs = this.node.getComponentsInChildren(player);
+		allPlayerTs.forEach((player, index) => {
+			player.id = playerClassArr[index].id;
+			player.index = playerClassArr[index].index;
+			player.chesses = playerClassArr[index].chesses;
+			player.color = playerClassArr[index].color;
+		});
+	}
 
-    renderCurPlayer(playerClassArr) {
-        const allPlayerTs = this.node.getComponentsInChildren(player)
-        allPlayerTs.forEach((player, index) => {
-            player.setOriginColor();
-            if (playerClassArr[index].turn) player.setNewColor();
-        })
-    }
+	renderCurPlayer(playerClassArr) {
+		const allPlayerTs = this.node.getComponentsInChildren(player);
+		allPlayerTs.forEach((player, index) => {
+			player.setOriginColor();
+			if (playerClassArr[index].turn) player.setNewColor();
+		});
+	}
 
-    // resetColor() {
+	renderCurPlayerChoesdChess(curPlayerIndex, chosedChessIndex) {
+		const allPlayerTs = this.node.getComponentsInChildren(player);
+		allPlayerTs[curPlayerIndex].setChoesdChess(chosedChessIndex);
+	}
 
-    // }
+	clearCurPlayerChoesdChess(curPlayerIndex) {
+		const allPlayerTs = this.node.getComponentsInChildren(player);
+		allPlayerTs[curPlayerIndex].clearChoesdChess();
+	}
 
-    update(deltaTime: number) {
+	renderCurPlayerChess(curPlayerIndex) {
+		const allPlayerTs = this.node.getComponentsInChildren(player);
+		allPlayerTs[curPlayerIndex].setChess();
+	}
 
-    }
+	rotateCurPlayerChoesdChess(curPlayerIndex, chosedChessIndex) {
+		const allPlayerTs = this.node.getComponentsInChildren(player);
+		allPlayerTs[curPlayerIndex].rotateChoesdChess();
+	}
+
+	flipCurPlayerChoesdChess(curPlayerIndex, chosedChessIndex) {
+		const allPlayerTs = this.node.getComponentsInChildren(player);
+		allPlayerTs[curPlayerIndex].flipChoesdChess();
+	}
+
+	// resetColor() {
+
+	// }
+
+	update(deltaTime: number) {}
 }
-
-

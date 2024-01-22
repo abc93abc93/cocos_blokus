@@ -23,7 +23,7 @@ export class board extends Component {
 
 	_block_size = 35;
 	_bias: number;
-	_render_matrix: Node[][]
+	_render_matrix: Node[][];
 
 	// chess = [
 	// 	[-1, 0],
@@ -36,26 +36,32 @@ export class board extends Component {
 	// availablePosition = [0, 0];
 
 	start() {
-		// this.node.on(Node.EventType.TOUCH_START, this.clickBlock, this);
+		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
 	}
 
 	init(boardClass) {
-
 		this._bias = boardClass._size / 2;
-		this._render_matrix = boardClass._matrix;
+		this._render_matrix = Array.from(Array(boardClass._size), () =>
+			new Array(boardClass._size).fill(0)
+		);
 
 		boardClass._matrix_vector.forEach((vector) => {
 			const [x, y] = vector;
 			const block = instantiate(this.board_block);
-			block.getComponent(UITransform).setContentSize(this._block_size, this._block_size)
+			block
+				.getComponent(UITransform)
+				.setContentSize(this._block_size, this._block_size);
 
 			block.setPosition(
 				new Vec3(
-					(x - this._bias) * this._block_size + (this._block_size / 2),
-					(y - this._bias) * this._block_size + (this._block_size / 2),
+					(x - this._bias) * this._block_size + this._block_size / 2,
+					(y - this._bias) * this._block_size + this._block_size / 2,
 					0
 				)
 			);
+
+			block.getComponent(boardBlock).x = x;
+			block.getComponent(boardBlock).y = y;
 
 			this._render_matrix[x][y] = block;
 
@@ -67,23 +73,67 @@ export class board extends Component {
 		});
 	}
 
-	// clickBlock(event: EventTouch) {
-	// 	const target = this.node.getChildByName(event.target.name);
+	renderBoard(_matrix, _matrix_vector) {
+		_matrix_vector.forEach(([x, y]) => {
+			switch (_matrix[x][y]) {
+				case 0:
+					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
+						233,
+						157,
+						157
+					);
+					break;
+				case 1:
+					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
+						255,
+						232,
+						232
+					);
+					break;
+				case 2:
+					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
+						255,
+						247,
+						232
+					);
+					break;
+				case 3:
+					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
+						242,
+						255,
+						242
+					);
+					break;
 
-	// 	if (target) {
-	// 		console.log(target.getComponent(boardBlock).isClick);
+				case 4:
+					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
+						242,
+						255,
+						255
+					);
+					break;
+				case 5:
+					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
+						25,
+						25,
+						60
+					);
+					break;
+			}
+		});
+	}
 
-	// 		if (target.getComponent(boardBlock).isClick) console.log("oooook！");
-	// 	}
-	// }
+	renderPreViewBoard(X, Y, _chess_vector) {
+		_chess_vector.forEach(([x, y]) => {
+			this._render_matrix[X + x][Y + y].getComponent(Sprite).color = new Color(
+				233,
+				50,
+				10
+			);
+		});
+	}
 
-
-	// handlerAvailablePosition(chessNode) {
-	// 	const position = this.getAvailablePosition([0, 0], chessNode);
-	// 	this.renderChessPosition(position);
-
-	// 	return position;
-	// }
+	clickNode(event: EventTouch) {}
 
 	//獲取可以放置的點
 	// getAvailablePosition(initPlace, chessNode) {
@@ -237,5 +287,5 @@ export class board extends Component {
 	// 	return Object.values(position);
 	// }
 
-	update(deltaTime: number) { }
+	update(deltaTime: number) {}
 }

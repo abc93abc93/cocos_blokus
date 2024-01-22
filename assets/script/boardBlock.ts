@@ -3,23 +3,12 @@ const { ccclass, property } = _decorator;
 
 @ccclass("boardBlock")
 export class boardBlock extends Component {
-	isClick = false;
+	x: number;
+	y: number;
 
 	start() {
-		this.node.on(Node.EventType.TOUCH_START, this.clickBlock, this);
+		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
 	}
 
-	clickBlock(event: EventTouch) {
-		if (!this.isClick) return;
-
-		console.log("click node", this.node.worldPosition, this.isClick);
-	}
-
-	getClick() {
-		return this.isClick;
-	}
-
-	update(deltaTime: number) {
-		this.getClick();
-	}
+	clickNode(event: EventTouch) {}
 }

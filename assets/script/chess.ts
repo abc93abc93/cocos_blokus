@@ -24,6 +24,7 @@ export class chess extends Component {
 	@property(Number)
 	center_Y: Number = 0;
 
+	_index = null;
 	_array = [];
 	_array_vector = [];
 	_center = [];
@@ -32,16 +33,15 @@ export class chess extends Component {
 	movable = false;
 
 	start() {
-		// this.node.on(Node.EventType.TOUCH_START, this.choseChess, this);
+		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
 	}
 
-	choseChess(event: EventTouch) { }
+	clickNode(event: EventTouch) {}
 
 	init() {
 		// this._array = this.matrix.map((string) =>
 		// 	string.split("").map((el) => Number(el))
 		// );
-
 		// this._center = [Number(this.center_X), Number(this.center_Y)];
 	}
 

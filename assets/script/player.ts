@@ -8,22 +8,23 @@ import {
 	UITransform,
 	Sprite,
 	Color,
+	tween,
 } from "cc";
 import { chess } from "./chess";
 import { board } from "./board";
+import { chesses } from "./chesses";
 const { ccclass, property } = _decorator;
 
 @ccclass("player")
 export class player extends Component {
-
 	id = null;
 	index = null;
 	color = null;
-	chesses = [];
-	turn = false;
+	chesses = []; //render node
 	chosed = null;
 
 	start() {
+		this.setChess();
 		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
 	}
 
@@ -35,21 +36,51 @@ export class player extends Component {
 		this.node.getComponent(Sprite).color = this.color;
 	}
 
-	// setPassed() {
-	// 	this.passed = true;
-	// }
+	setChess() {
+		const chessboard = this.node.getChildByName("Chesses");
+		const chessboardTs = chessboard.getComponent(chesses);
+		chessboardTs.setChessPostion(this.chesses);
+	}
+
+	setChoesdChess(chosedChessIndex) {
+		const chessboard = this.node.getChildByName("Chesses");
+		const choseChessNode = chessboard.children[chosedChessIndex];
+		let node = instantiate(choseChessNode);
+		const choesdChess = this.node.getChildByName("ChosedChess");
+		choesdChess.removeAllChildren();
+		node.setPosition(new Vec3(0, 0, 0));
+		choesdChess.addChild(node);
+	}
+
+	clearChoesdChess() {
+		const choesdChess = this.node.getChildByName("ChosedChess");
+		choesdChess.removeAllChildren();
+	}
+
+	rotateChoesdChess() {
+		const choesdChess = this.node.getChildByName("ChosedChess");
+		const Chess = choesdChess.getChildByName("Chess");
+
+		tween(Chess)
+			.to(1, { angle: Chess.angle - 90 }, { easing: "quartOut" })
+			.start();
+	}
+
+	flipChoesdChess() {
+		const choesdChess = this.node.getChildByName("ChosedChess");
+		const Chess = choesdChess.getChildByName("Chess");
+		tween(Chess)
+			.to(1, { scale: new Vec3(-Chess.scale.x, 1, 1) }, { easing: "quartOut" })
+			.start();
+	}
 
 	clickNode(event: EventTouch) {
-
 		// if (event.target.name === 'PassedBtn') {
 		// 	this.passed = true
 		// };
-
 		// if (!this.turn) {
 		// 	event.propagationStopped = true;
 		// }
-
-
 	}
 }
 // choseChess(event: EventTouch) {
@@ -108,4 +139,3 @@ export class player extends Component {
 // }
 
 // update(deltaTime: number) { }
-
