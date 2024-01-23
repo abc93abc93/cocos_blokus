@@ -49,10 +49,8 @@ export class game extends Component {
 		this.initPlayersView(this.blokusGame.players);
 		this.initBoardView(this.blokusGame.board);
 		this.blokusGame.players[1].isComputer = true;
-		const that = this;
-		// this.onBoardChange(this.blokusGame.board, that)
-		// this.onPlayerChange(this.blokusGame.curPlayer, that)
-		// this.blokusGame.bindPlayerChange(this.onPlayerChange, that);
+		this.blokusGame.players[2].isComputer = true;
+		this.blokusGame.players[3].isComputer = true;
 	}
 
 	start() {
@@ -136,47 +134,17 @@ export class game extends Component {
 	//Passed換玩家
 	handlerPlayerPassed() {
 		this.blokusGame.setPlayerPassed();
-		const gameOver = this.blokusGame.isGameGoing();
-		console.log("gameOver", gameOver);
 
-		if (gameOver) {
-			const scores = this.blokusGame.getPlayersScore();
-
-			this.Popup.active = true;
-			const socresUI = this.Popup.getComponentsInChildren(Label);
-
-			for (let index = 0; index < 4; index++) {
-				socresUI[
-					index
-				].string = `${scores[index].id}  ${scores[index].score} 分`;
-			}
-		}
-
-		const playerSectionTs = this.PlayerSection.getComponent(playerSection);
-		playerSectionTs.renderCurPlayer(this.blokusGame.players);
-
-		const boardTs = this.Board.getComponent(board);
-		boardTs.renderBoard(
-			this.blokusGame.board._matrix,
-			this.blokusGame.board._matrix_vector
-		);
+		this.handlerPlayerchange();
 	}
 
 	//放完換玩家
 	handlerPlayerchange() {
 		const gameOver = this.blokusGame.isGameGoing();
+		console.log(this.blokusGame.curPlayer, gameOver);
 
 		if (gameOver) {
-			const scores = this.blokusGame.getPlayersScore();
-
-			this.Popup.active = true;
-			const socresUI = this.Popup.getComponentsInChildren(Label);
-
-			for (let index = 0; index < 4; index++) {
-				socresUI[
-					index
-				].string = `${scores[index].id}  ${scores[index].score} 分`;
-			}
+			this.setGameOverScores();
 		}
 
 		const playerSectionTs = this.PlayerSection.getComponent(playerSection);
@@ -187,23 +155,34 @@ export class game extends Component {
 			this.blokusGame.board._matrix,
 			this.blokusGame.board._matrix_vector
 		);
+
+		//如果玩家是電腦
+		if (
+			this.blokusGame.players[this.blokusGame.curPlayer].isComputer &&
+			!this.blokusGame.players[this.blokusGame.curPlayer].passed
+		) {
+			this.blokusGame.autoPlay();
+
+			//重渲染電腦的棋子
+			playerSectionTs.renderCurPlayerChess(this.blokusGame.curPlayer);
+
+			//可能要優化會卡
+			setTimeout(() => {
+				this.handlerPlayerchange();
+			}, 2000);
+		}
 	}
 
-	test() {
-		//重整棋子區
-		const playerSectionTs = this.PlayerSection.getComponent(playerSection);
-		playerSectionTs.renderCurPlayerChess(this.blokusGame.curPlayer);
-		playerSectionTs.clearCurPlayerChoesdChess(this.blokusGame.curPlayer);
+	//取得分數渲染到畫面上
+	setGameOverScores() {
+		const scores = this.blokusGame.getPlayersScore();
 
-		//選染
-		const boardTs = this.Board.getComponent(board);
-		boardTs.renderBoard(
-			this.blokusGame.board._matrix,
-			this.blokusGame.board._matrix_vector
-		);
+		this.Popup.active = true;
+		const socresUI = this.Popup.getComponentsInChildren(Label);
 
-		//更換玩家
-		this.handlerPlayerchange();
+		for (let index = 0; index < 4; index++) {
+			socresUI[index].string = `${scores[index].id}  ${scores[index].score} 分`;
+		}
 	}
 
 	//玩家輪流玩

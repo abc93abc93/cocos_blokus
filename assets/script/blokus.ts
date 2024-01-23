@@ -15,9 +15,6 @@ export class BlokusGame {
 		this.players = [player1, player2, player3, player4];
 		this.curPlayer = 0; //下棋者
 		this.playersSore = [];
-		// this.onPlayerChangeCallback = null;
-		// this.onBoardChangeCallback = null;
-		// this.thisInGameTs = null;
 	}
 
 	init() {
@@ -25,11 +22,6 @@ export class BlokusGame {
 		this.board.init();
 		this.players.forEach((player) => player.init(this.curPlayer));
 	}
-
-	// bindPlayerChange(callback, that) {
-	// 	this.onPlayerChangeCallback = callback;
-	// 	this.thisInGameTs = that
-	// }
 
 	setPlayerTurn() {
 		this.players.forEach((player) => {
@@ -106,6 +98,7 @@ export class BlokusGame {
 		const chosed: number = this.players[this.curPlayer].chosed;
 
 		this.board.resetChosablePosition();
+
 		cheses[chosed].isDone = true;
 		this.board.setFinalPosition(this.curPlayer, cheses[chosed].vector);
 
@@ -123,31 +116,22 @@ export class BlokusGame {
 
 		this.board.resetChosablePosition(); //重置棋盤可以
 		this.setPlayerTurn();
-
-		//如果玩家是電腦
-		if (this.players[this.curPlayer].isComputer) {
-			console.log("是電腦喔");
-			this.auto();
-		}
 	}
 
-	auto() {
-		const index = this.autoChosedChessIndex();
-		console.log("自動選的", index);
-		this.setPlayerChosedChess(index);
-		//獲取可以放置的位置
-		const chosablePosition = this.setChosablePosition();
-		console.log("可放置的位置", chosablePosition);
-		if (chosablePosition.length === 0) this.auto;
-		console.log("終於有可放置的位置", chosablePosition);
+	autoPlay() {
+		const CanChosedChess = this.setCanChosedChess();
+		const chosablePosition = this.autoChosedChess(CanChosedChess);
+
+		//如果pass就不用往下做
+		if (!chosablePosition) return;
 
 		const chosedPosition = this.autoChosedPosition(chosablePosition);
-		console.log("選中要放的位置", chosedPosition);
 		this.checkClickBlock(chosedPosition[0], chosedPosition[1]);
 		this.setConfirmPosition();
 	}
 
-	autoChosedChessIndex() {
+	//篩出可選棋子的陣列
+	setCanChosedChess() {
 		const canChosed = [];
 		const chesses = this.players[this.curPlayer].chesses;
 		//篩選出可以挑的棋子index
@@ -155,9 +139,32 @@ export class BlokusGame {
 			if (chesses[index].isDone) continue;
 			canChosed.push(index);
 		}
-		const index = Math.floor(Math.random() * canChosed.length);
+		return canChosed;
+	}
 
-		return canChosed[index]; //送出選到的棋子的index
+	//開始自動選
+	autoChosedChess(CanChosedChessArr) {
+		const index = Math.floor(Math.random() * CanChosedChessArr.length);
+		const chosedChessIndex = CanChosedChessArr[index];
+
+		//去設定他選到的棋子
+		this.setPlayerChosedChess(chosedChessIndex);
+		//獲取可以放置的位置
+		const chosablePosition = this.setChosablePosition();
+		//如果沒有可以放的位置就在選一次
+		if (chosablePosition.length === 0) {
+			//剔除目前的棋子index
+			CanChosedChessArr.splice(index, 1);
+
+			if (CanChosedChessArr.length === 0) {
+				//表示都沒棋子可以放了要pass
+				this.players[this.curPlayer].setPassed();
+				return false;
+			}
+			return this.autoChosedChess(CanChosedChessArr);
+		} else {
+			return chosablePosition;
+		}
 	}
 
 	autoChosedPosition(chosablePosition) {
@@ -195,10 +202,13 @@ export class BlokusGame {
 	//判斷遊戲是否結束
 	isGameOver() {
 		//判斷標準 - 4個玩家都pass & 有玩家把棋子都放完
-		const allPassed = this.players.every((player) => player.passed);
+		const allPassed = this.players.every((player, index) => {
+			return player.passed;
+		});
 		const noChess = this.players.some((player) =>
 			player.chesses.every((chess) => chess.isDone === true)
 		);
+		console.log("allPassed", allPassed, "noChess", noChess);
 
 		return allPassed || noChess;
 	}
@@ -229,8 +239,6 @@ export class Board {
 	init() {
 		this._matrix = this.setBoard();
 		this._matrix_vector = this.setBoardVector();
-
-		console.log("init", this._matrix[0][0]);
 	}
 
 	//設置棋盤
@@ -255,16 +263,12 @@ export class Board {
 
 		const [x, y] = initPlace;
 
-		console.log(initPlace, playerIndex);
-
 		if (this._matrix[x][y] === 0) {
 			const places = this.findChessPosition(chessNode, initPlace);
 			if (places.length === 0) return array;
 			array.push(...places);
 			return array;
 		}
-
-		console.log("另一個判斷");
 
 		const allCorner = this.findAllCorner(playerIndex);
 		const availableCorner = this.findAvailableCorner(allCorner);
@@ -379,7 +383,6 @@ export class Board {
 
 		for (let index = 0; index < array.length; index++) {
 			const [x, y] = array[index];
-			console.log(x, y);
 
 			if (x - 1 >= 0 && this._matrix[x - 1][y] !== 0) continue;
 			if (y - 1 >= 0 && this._matrix[x][y - 1] !== 0) continue;
