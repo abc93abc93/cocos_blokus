@@ -15,32 +15,27 @@ export const chessesData: ChessData[] = [
 			[0, 1],
 		],
 		center: [0, 1],
-		position: [3, 15],
+		position: [3, 19],
 	},
 	/** block2 */
 	{
 		matrix: [[1]],
 		center: [0, 0],
-		position: [7, 15],
+		position: [7, 19],
 	},
 	/** block3 */
 	{
 		matrix: [[1], [1]],
 		center: [0, 0],
-		position: [10, 15],
+		position: [10, 19],
 	},
 	/** block4 */
 	{
 		matrix: [[1], [1], [1]],
 		center: [1, 0],
-		position: [15, 15],
+		position: [15, 19],
 	},
-	/** block5 */
-	{
-		matrix: [[1], [1], [1], [1]],
-		center: [1, 0],
-		position: [20, 15],
-	},
+	//第二排
 	/** block6 */
 	{
 		matrix: [
@@ -48,7 +43,7 @@ export const chessesData: ChessData[] = [
 			[1, 1, 1],
 		],
 		center: [1, 1],
-		position: [2, 10],
+		position: [3, 14],
 	},
 	/** block7 */
 	{
@@ -58,7 +53,7 @@ export const chessesData: ChessData[] = [
 			[0, 1, 0],
 		],
 		center: [1, 1],
-		position: [6, 11],
+		position: [7, 15],
 	},
 	/** block8 */
 	{
@@ -67,7 +62,7 @@ export const chessesData: ChessData[] = [
 			[1, 1, 0],
 		],
 		center: [0, 1],
-		position: [11, 11],
+		position: [11, 15],
 	},
 	/** block9 */
 	{
@@ -77,14 +72,9 @@ export const chessesData: ChessData[] = [
 			[1, 1, 0],
 		],
 		center: [1, 1],
-		position: [15, 11],
+		position: [15, 15],
 	},
-	/** block10 */
-	{
-		matrix: [[1], [1], [1], [1], [1]],
-		center: [2, 0],
-		position: [21, 11],
-	},
+	//第三排
 	/** block11 */
 	{
 		matrix: [
@@ -92,7 +82,7 @@ export const chessesData: ChessData[] = [
 			[1, 1, 1, 1],
 		],
 		center: [1, 2],
-		position: [3, 6],
+		position: [3, 10],
 	},
 	/** block12 */
 	{
@@ -101,7 +91,7 @@ export const chessesData: ChessData[] = [
 			[1, 1, 1, 0],
 		],
 		center: [1, 2],
-		position: [9, 6],
+		position: [6, 10],
 	},
 	/** block13 */
 	{
@@ -111,63 +101,7 @@ export const chessesData: ChessData[] = [
 			[0, 1, 0],
 		],
 		center: [1, 1],
-		position: [14, 7],
-	},
-	/** block14 */
-	{
-		matrix: [
-			[0, 1, 0],
-			[1, 1, 1],
-		],
-		center: [1, 1],
-		position: [18, 6],
-	},
-	/** block15 */
-	{
-		matrix: [
-			[1, 0, 0],
-			[1, 1, 0],
-			[0, 1, 1],
-		],
-		center: [1, 1],
-		position: [22, 7],
-	},
-	/** block16 */
-	{
-		matrix: [
-			[1, 1],
-			[1, 1],
-		],
-		center: [1, 0],
-		position: [2, 1],
-	},
-	/** block17 */
-	{
-		matrix: [
-			[1, 0, 1],
-			[1, 1, 1],
-		],
-		center: [1, 1],
-		position: [7, 1],
-	},
-	/** block18 */
-	{
-		matrix: [
-			[0, 1, 0],
-			[0, 1, 0],
-			[1, 1, 1],
-		],
-		center: [1, 1],
-		position: [11, 2],
-	},
-	/** block19 */
-	{
-		matrix: [
-			[0, 0, 1],
-			[1, 1, 1],
-		],
-		center: [1, 1],
-		position: [15, 1],
+		position: [10, 10],
 	},
 	/** block20 */
 	{
@@ -177,7 +111,77 @@ export const chessesData: ChessData[] = [
 			[1, 1, 1],
 		],
 		center: [1, 0],
-		position: [20, 2],
+		position: [14, 9],
+	},
+	/** block14 */
+	{
+		matrix: [
+			[0, 1, 0],
+			[1, 1, 1],
+		],
+		center: [1, 1],
+		position: [18, 10],
+	},
+	//第四排
+	/** block16 */
+	{
+		matrix: [
+			[1, 1],
+			[1, 1],
+		],
+		center: [1, 0],
+		position: [3, 4],
+	},
+	/** block17 */
+	{
+		matrix: [
+			[1, 0, 1],
+			[1, 1, 1],
+		],
+		center: [1, 1],
+		position: [7, 5],
+	},
+	/** block10 */
+	{
+		matrix: [[1], [1], [1], [1], [1]],
+		center: [2, 0],
+		position: [11, 5],
+	},
+	/** block19 */
+	{
+		matrix: [
+			[0, 0, 1],
+			[1, 1, 1],
+		],
+		center: [1, 1],
+		position: [16, 5],
+	},
+	//第五排
+	/** block5 */
+	{
+		matrix: [[1], [1], [1], [1]],
+		center: [1, 0],
+		position: [3, 1],
+	},
+	/** block18 */
+	{
+		matrix: [
+			[0, 1, 0],
+			[0, 1, 0],
+			[1, 1, 1],
+		],
+		center: [1, 1],
+		position: [8, 1],
+	},
+	/** block15 */
+	{
+		matrix: [
+			[1, 0, 0],
+			[1, 1, 0],
+			[0, 1, 1],
+		],
+		center: [1, 1],
+		position: [12, 1],
 	},
 	/** block21 */
 	{
@@ -188,6 +192,6 @@ export const chessesData: ChessData[] = [
 			[1, 0],
 		],
 		center: [2, 0],
-		position: [23, 2],
+		position: [17, 0],
 	},
 ];

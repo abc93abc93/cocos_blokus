@@ -6,9 +6,10 @@ import {
 	Prefab,
 	instantiate,
 	Vec3,
-	Label,
 	EventTouch,
-	Script,
+	Sprite,
+	resources,
+	SpriteFrame,
 } from "cc";
 const { ccclass, property } = _decorator;
 import { chess } from "./chess";
@@ -18,6 +19,13 @@ export class chesses extends Component {
 	@property(Prefab)
 	ChessBlock: Prefab;
 
+	protected onLoad(): void {
+		resources.preload("textures/Game/block/block1/spriteFrame", SpriteFrame);
+		resources.preload("textures/Game/block/block2/spriteFrame", SpriteFrame);
+		resources.preload("textures/Game/block/block3/spriteFrame", SpriteFrame);
+		resources.preload("textures/Game/block/block4/spriteFrame", SpriteFrame);
+	}
+
 	start() {
 		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
 	}
@@ -25,7 +33,7 @@ export class chesses extends Component {
 	clickNode(event: EventTouch) {}
 
 	//創造一個chess
-	createChess(array, center, size) {
+	createChess(array, center, size, playerIndex) {
 		const node = new Node();
 
 		const width = array.length;
@@ -38,13 +46,17 @@ export class chesses extends Component {
 				const [centerX, centerY] = center;
 				const block = instantiate(this.ChessBlock);
 
+				const url = `textures/Game/block/block${playerIndex + 1}/spriteFrame`;
+
+				resources.load(url, SpriteFrame, (err: any, spriteFrame) => {
+					block.getComponent(Sprite).spriteFrame = spriteFrame;
+				});
+
+				block.getComponent(UITransform).setContentSize(size, size);
+
 				block.setPosition(
 					new Vec3((x - centerX) * size, (y - centerY) * size, 0)
 				);
-
-				//設置數據 (之後刪)
-				const label = block.getChildByName("Label");
-				label.getComponent(Label).string = `${x}${y}`;
 
 				node.addChild(block);
 			}
@@ -58,23 +70,24 @@ export class chesses extends Component {
 	}
 
 	//放置每一個chess
-	setChessPostion(chessData) {
+	setChessPostion(chessData, chessSize, width, height, playerIndex) {
 		this.node.removeAllChildren();
 
-		const w = 25 / 2;
-		const h = 17 / 2;
+		const w = width / 2;
+		const h = height / 2;
 
 		for (let index = 0; index < chessData.length; index++) {
 			const chessNode = this.createChess(
 				chessData[index].matrix,
 				chessData[index].center,
-				10
+				chessSize,
+				playerIndex
 			);
 
 			chessNode.setPosition(
 				new Vec3(
-					(chessData[index].position[0] - w) * 10,
-					(chessData[index].position[1] - h) * 10,
+					(chessData[index].position[0] - w) * chessSize,
+					(chessData[index].position[1] - h) * chessSize,
 					0
 				)
 			);

@@ -13,17 +13,23 @@ import {
 	sys,
 	director,
 	BlockInputEvents,
+	resources,
+	SpriteFrame,
 } from "cc";
 import { board } from "./board";
 import { playerSection } from "./playerSection";
 import { player } from "./player";
 import { chess } from "./chess";
 import { boardBlock } from "./boardBlock";
+import { AudioControl } from "./Audio/AudioControl";
 
 const { ccclass, property } = _decorator;
 
 @ccclass("game")
 export class game extends Component {
+	@property(AudioControl)
+	AudioControl: AudioControl = null;
+
 	@property(Node)
 	Board: Node;
 
@@ -39,6 +45,10 @@ export class game extends Component {
 	blokusGame = null;
 	blockInputEvents = null;
 
+	//棋子選轉
+	chess_rotate = false;
+	chess_flip = false;
+
 	onLoad() {
 		//載入遊戲
 		this.blokusGame = new BlokusGame(
@@ -48,8 +58,8 @@ export class game extends Component {
 			new Player("BRIAN", 3, new Color(242, 255, 255), [19, 0])
 		);
 		this.blokusGame.init();
+		this.initBoardView(this.blokusGame.board); //棋盤要比player先載入不然會出事
 		this.initPlayersView(this.blokusGame.players);
-		this.initBoardView(this.blokusGame.board);
 		this.blokusGame.players[1].isComputer = true;
 		this.blokusGame.players[2].isComputer = true;
 		this.blokusGame.players[3].isComputer = true;
@@ -80,16 +90,22 @@ export class game extends Component {
 	}
 
 	//旋轉棋子
-	handlerPlayerRotate() {
+	handlerPlayerRotate(direc: "clockwise" | "counterclockwise") {
+		if (this.chess_rotate) return;
+
+		this.chess_rotate = true;
 		//棋子旋轉
-		this.blokusGame.setChosedRotate();
+		this.blokusGame.setChosedRotate(direc);
 		//棋盤篩選可以放的位置
 		this.blokusGame.setChosablePosition();
 
 		const playerSectionTs = this.PlayerSection.getComponent(playerSection);
 		playerSectionTs.rotateCurPlayerChoesdChess(
 			this.blokusGame.curPlayer,
-			this.blokusGame.players[this.blokusGame.curPlayer].chosed
+			direc,
+			() => {
+				this.chess_rotate = false;
+			}
 		);
 
 		//渲染到畫面上給玩家看
@@ -101,16 +117,24 @@ export class game extends Component {
 	}
 
 	//翻轉棋子
-	handlerPlayerFlip() {
+	handlerPlayerFlip(direc: "vertical" | "horizon") {
+		if (this.chess_flip) return;
+		this.chess_flip = true;
+		this.AudioControl.playAudio("button-vertical");
 		//棋子翻轉
-		this.blokusGame.setChosedFlip();
+		this.blokusGame.setChosedFlip(direc);
 		//棋盤篩選可以放的位置
 		this.blokusGame.setChosablePosition();
 
+		//前端自己翻轉的
 		const playerSectionTs = this.PlayerSection.getComponent(playerSection);
 		playerSectionTs.flipCurPlayerChoesdChess(
 			this.blokusGame.curPlayer,
-			this.blokusGame.players[this.blokusGame.curPlayer].chosed
+			this.blokusGame.players[this.blokusGame.curPlayer].chosed,
+			direc,
+			() => {
+				this.chess_flip = false;
+			}
 		);
 
 		//渲染到畫面上給玩家看
@@ -188,7 +212,7 @@ export class game extends Component {
 		const scores = this.blokusGame.getPlayersScore();
 
 		//禁用遊戲畫面的點擊
-		this.blockInputEvents.enabled = true;
+		this.blockInputEvents = true;
 
 		this.Popup.active = true;
 		const socresUI = this.Popup.children.filter(
@@ -205,28 +229,67 @@ export class game extends Component {
 	//玩家輪流玩
 	clickNode(event: EventTouch) {
 		//換玩家條件 -> 玩家按passed
-		if (event.target.name === "PassedBtn") {
+		if (event.target.name === "button-giveup") {
 			const playerIndex = event.target.parent.getComponent(player).index;
 			if (playerIndex !== this.blokusGame.curPlayer) return;
 			this.handlerPlayerPassed();
 		}
 
-		//按下旋轉按鈕
-		if (event.target.name === "RotateBtn") {
+		//按下順旋轉按鈕
+		if (event.target.name === "button-clockwise") {
 			this.CheckBtn.active = false;
 
 			const playerIndex = event.target.parent.getComponent(player).index;
-			if (playerIndex !== this.blokusGame.curPlayer) return;
-			this.handlerPlayerRotate();
+			if (
+				playerIndex !== this.blokusGame.curPlayer ||
+				!this.blokusGame.players[this.blokusGame.curPlayer].chosed
+			) {
+				return;
+			}
+			this.handlerPlayerRotate("clockwise");
 		}
 
-		//按下翻轉按鈕
-		if (event.target.name === "FlipBtn") {
+		//按下逆旋轉按鈕
+		if (event.target.name === "button-counterclockwise") {
 			this.CheckBtn.active = false;
 
 			const playerIndex = event.target.parent.getComponent(player).index;
-			if (playerIndex !== this.blokusGame.curPlayer) return;
-			this.handlerPlayerFlip();
+			if (
+				playerIndex !== this.blokusGame.curPlayer ||
+				!this.blokusGame.players[this.blokusGame.curPlayer].chosed
+			) {
+				return;
+			}
+			this.handlerPlayerRotate("counterclockwise");
+		}
+
+		//按下垂直翻轉按鈕
+		if (event.target.name === "button-vertical") {
+			this.CheckBtn.active = false;
+
+			const playerIndex = event.target.parent.getComponent(player).index;
+			if (
+				playerIndex !== this.blokusGame.curPlayer ||
+				!this.blokusGame.players[this.blokusGame.curPlayer].chosed
+			) {
+				return;
+			}
+
+			this.handlerPlayerFlip("vertical");
+		}
+
+		//按下水平翻轉按鈕
+		if (event.target.name === "button-horizon") {
+			this.CheckBtn.active = false;
+
+			const playerIndex = event.target.parent.getComponent(player).index;
+			if (
+				playerIndex !== this.blokusGame.curPlayer ||
+				!this.blokusGame.players[this.blokusGame.curPlayer].chosed
+			) {
+				return;
+			}
+			this.handlerPlayerFlip("horizon");
 		}
 
 		//當玩家選到棋子

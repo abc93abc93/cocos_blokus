@@ -176,7 +176,7 @@ export class BlokusGame {
 	}
 
 	//選中的棋子旋轉
-	setChosedRotate() {
+	setChosedRotate(direc: "clockwise" | "counterclockwise") {
 		const cheses = this.players[this.curPlayer].chesses;
 		const chosedIndex = this.players[this.curPlayer].chosed;
 
@@ -184,22 +184,31 @@ export class BlokusGame {
 
 		cheses[chosedIndex].rotateMatrix(
 			cheses[chosedIndex].matrix,
-			cheses[chosedIndex].center
+			cheses[chosedIndex].center,
+			direc
 		);
 	}
 
 	//選中的棋子翻轉
-	setChosedFlip() {
+	setChosedFlip(direc: "vertical" | "horizon") {
 		const cheses = this.players[this.curPlayer].chesses;
 		const chosedIndex = this.players[this.curPlayer].chosed;
 
 		if (chosedIndex === null) return;
 
-		cheses[chosedIndex].flipMatrix(
-			cheses[chosedIndex].matrix,
-			cheses[chosedIndex].center,
-			"vertical"
-		);
+		if (direc === "vertical") {
+			cheses[chosedIndex].flipMatrix(
+				cheses[chosedIndex].matrix,
+				cheses[chosedIndex].center,
+				"vertical"
+			);
+		} else {
+			cheses[chosedIndex].flipMatrix(
+				cheses[chosedIndex].matrix,
+				cheses[chosedIndex].center,
+				"horizon"
+			);
+		}
 	}
 
 	//判斷遊戲是否結束
@@ -527,7 +536,7 @@ export class Chess {
 	}
 
 	//rotate
-	rotateMatrix(matrix, centers) {
+	rotateMatrix(matrix, centers, direc) {
 		const m = matrix.length;
 		const n = matrix[0].length;
 
@@ -535,15 +544,28 @@ export class Chess {
 		const rotatedMatrix = new Array(n).fill(0).map(() => new Array(m).fill(0));
 
 		// 進行矩陣旋轉
-		for (let i = 0; i < m; i++) {
-			for (let j = 0; j < n; j++) {
-				rotatedMatrix[j][m - 1 - i] = matrix[i][j];
+		if (direc === "clockwise") {
+			for (let i = 0; i < m; i++) {
+				for (let j = 0; j < n; j++) {
+					rotatedMatrix[j][m - 1 - i] = matrix[i][j];
+				}
 			}
-		}
 
-		this.matrix = rotatedMatrix;
-		this.center = [centers[1], m - 1 - centers[0]];
-		this.vector = this.setVector();
+			this.matrix = rotatedMatrix;
+			this.center = [centers[1], m - 1 - centers[0]];
+			this.vector = this.setVector();
+		} else {
+			for (let i = 0; i < m; i++) {
+				for (let j = 0; j < n; j++) {
+					rotatedMatrix[n - 1 - j][i] = matrix[i][j];
+				}
+			}
+
+			// 更新对象的矩阵、中心点和向量属性
+			this.matrix = rotatedMatrix;
+			this.center = [n - 1 - centers[1], centers[0]];
+			this.vector = this.setVector();
+		}
 	}
 
 	//flip
@@ -561,7 +583,9 @@ export class Chess {
 		};
 
 		// 水平翻轉
-		if (direction === "horizontal") {
+		if (direction === "horizon") {
+			console.log("水平翻");
+
 			for (let i = 0; i < m; i++) {
 				for (let j = 0; j < n; j++) {
 					flippedMatrix[i][j] = matrix[i][n - 1 - j];
@@ -572,6 +596,7 @@ export class Chess {
 		}
 		// 垂直翻轉
 		else if (direction === "vertical") {
+			console.log("垂直翻翻");
 			for (let i = 0; i < m; i++) {
 				for (let j = 0; j < n; j++) {
 					flippedMatrix[i][j] = matrix[m - 1 - i][j];

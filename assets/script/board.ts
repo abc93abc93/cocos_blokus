@@ -10,7 +10,10 @@ import {
 	EventTouch,
 	Node,
 	UITransform,
+	resources,
+	SpriteFrame,
 } from "cc";
+import { chess } from "./chess";
 import { boardBlock } from "./boardBlock";
 
 const { ccclass, property } = _decorator;
@@ -23,6 +26,15 @@ export class board extends Component {
 	_block_size = 35;
 	_bias: number;
 	_render_matrix: Node[][];
+
+	protected onLoad(): void {
+		resources.preload("textures/Game/block/block/spriteFrame", SpriteFrame);
+		resources.preload("textures/Game/block/block1/spriteFrame", SpriteFrame);
+		resources.preload("textures/Game/block/block2/spriteFrame", SpriteFrame);
+		resources.preload("textures/Game/block/block3/spriteFrame", SpriteFrame);
+		resources.preload("textures/Game/block/block4/spriteFrame", SpriteFrame);
+		resources.preload("textures/Game/block/block5/spriteFrame", SpriteFrame);
+	}
 
 	start() {
 		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
@@ -54,10 +66,6 @@ export class board extends Component {
 
 			this._render_matrix[x][y] = block;
 
-			//設置數據 (之後刪)
-			const label = block.getChildByName("Label");
-			label.getComponent(Label).string = `${x}${y}`;
-
 			this.node.addChild(block);
 		});
 	}
@@ -66,46 +74,64 @@ export class board extends Component {
 		_matrix_vector.forEach(([x, y]) => {
 			switch (_matrix[x][y]) {
 				case 0:
-					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
-						233,
-						157,
-						157
+					resources.load(
+						"textures/Game/block/block/spriteFrame",
+						SpriteFrame,
+						(err: any, spriteFrame) => {
+							this._render_matrix[x][y].getComponent(Sprite).spriteFrame =
+								spriteFrame;
+						}
 					);
 					break;
 				case 1:
-					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
-						255,
-						232,
-						232
+					resources.load(
+						"textures/Game/block/block1/spriteFrame",
+						SpriteFrame,
+						(err: any, spriteFrame) => {
+							this._render_matrix[x][y].getComponent(Sprite).spriteFrame =
+								spriteFrame;
+						}
 					);
 					break;
 				case 2:
-					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
-						255,
-						247,
-						232
+					resources.load(
+						"textures/Game/block/block2/spriteFrame",
+						SpriteFrame,
+						(err: any, spriteFrame) => {
+							this._render_matrix[x][y].getComponent(Sprite).spriteFrame =
+								spriteFrame;
+						}
 					);
 					break;
 				case 3:
-					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
-						242,
-						255,
-						242
+					resources.load(
+						"textures/Game/block/block3/spriteFrame",
+						SpriteFrame,
+						(err: any, spriteFrame) => {
+							this._render_matrix[x][y].getComponent(Sprite).spriteFrame =
+								spriteFrame;
+						}
 					);
 					break;
 
 				case 4:
-					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
-						242,
-						255,
-						255
+					resources.load(
+						"textures/Game/block/block4/spriteFrame",
+						SpriteFrame,
+						(err: any, spriteFrame) => {
+							this._render_matrix[x][y].getComponent(Sprite).spriteFrame =
+								spriteFrame;
+						}
 					);
 					break;
 				case 5:
-					this._render_matrix[x][y].getComponent(Sprite).color = new Color(
-						25,
-						25,
-						60
+					resources.load(
+						"textures/Game/block/block5/spriteFrame",
+						SpriteFrame,
+						(err: any, spriteFrame) => {
+							this._render_matrix[x][y].getComponent(Sprite).spriteFrame =
+								spriteFrame;
+						}
 					);
 					break;
 			}

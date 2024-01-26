@@ -25,11 +25,14 @@ export class playerSection extends Component {
 		});
 	}
 
+	//渲染現在在玩的玩家
 	renderCurPlayer(playerClassArr) {
 		const allPlayerTs = this.node.getComponentsInChildren(player);
 		allPlayerTs.forEach((player, index) => {
 			player.setOriginColor();
-			if (playerClassArr[index].turn) player.setNewColor();
+			if (playerClassArr[index].passed) player.setPassed();
+			if (playerClassArr[index].turn && !playerClassArr[index].passed)
+				player.setNewColor();
 		});
 	}
 
@@ -48,19 +51,13 @@ export class playerSection extends Component {
 		allPlayerTs[curPlayerIndex].setChess();
 	}
 
-	rotateCurPlayerChoesdChess(curPlayerIndex, chosedChessIndex) {
+	rotateCurPlayerChoesdChess(curPlayerIndex, direc, cb) {
 		const allPlayerTs = this.node.getComponentsInChildren(player);
-		allPlayerTs[curPlayerIndex].rotateChoesdChess();
+		allPlayerTs[curPlayerIndex].rotateChoesdChess(direc, cb);
 	}
 
-	flipCurPlayerChoesdChess(curPlayerIndex, chosedChessIndex) {
+	flipCurPlayerChoesdChess(curPlayerIndex, chosedChessIndex, direc, cb) {
 		const allPlayerTs = this.node.getComponentsInChildren(player);
-		allPlayerTs[curPlayerIndex].flipChoesdChess();
+		allPlayerTs[curPlayerIndex].flipChoesdChess(direc, cb);
 	}
-
-	// resetColor() {
-
-	// }
-
-	update(deltaTime: number) {}
 }
