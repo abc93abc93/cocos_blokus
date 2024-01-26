@@ -1,5 +1,6 @@
 import { chessesData } from "./Data/chess";
 import { type ChessData } from "./Data/chess";
+import DataControlPanel from "../scripts/DataControlPanel";
 
 export class BlokusGame {
 	board: Board;
@@ -21,6 +22,8 @@ export class BlokusGame {
 		//遊戲預加載的東東
 		this.board.init();
 		this.players.forEach((player) => player.init(this.curPlayer));
+
+		DataControlPanel.init();
 	}
 
 	setPlayerTurn() {

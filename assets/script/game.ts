@@ -12,6 +12,7 @@ import {
 	Label,
 	sys,
 	director,
+	BlockInputEvents,
 } from "cc";
 import { board } from "./board";
 import { playerSection } from "./playerSection";
@@ -36,14 +37,15 @@ export class game extends Component {
 	Popup: Node;
 
 	blokusGame = null;
+	blockInputEvents = null;
 
 	onLoad() {
 		//載入遊戲
 		this.blokusGame = new BlokusGame(
-			new Player("peter", 0, new Color(255, 232, 232), [0, 0]),
-			new Player("kiki", 1, new Color(255, 247, 232), [0, 19]),
-			new Player("amy", 2, new Color(242, 255, 242), [19, 19]),
-			new Player("brian", 3, new Color(242, 255, 255), [19, 0])
+			new Player("PETER", 0, new Color(255, 232, 232), [0, 0]),
+			new Player("KIKI", 1, new Color(255, 247, 232), [0, 19]),
+			new Player("AMY", 2, new Color(242, 255, 242), [19, 19]),
+			new Player("BRIAN", 3, new Color(242, 255, 255), [19, 0])
 		);
 		this.blokusGame.init();
 		this.initPlayersView(this.blokusGame.players);
@@ -55,6 +57,14 @@ export class game extends Component {
 
 	start() {
 		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
+
+		//設置禁用點擊config
+		this.blockInputEvents = this.Popup.getComponent(BlockInputEvents);
+		if (!this.blockInputEvents) {
+			this.blockInputEvents = this.Popup.addComponent(BlockInputEvents);
+		}
+
+		this.blockInputEvents = true;
 	}
 
 	//渲染玩家區塊 (DU)
@@ -177,11 +187,18 @@ export class game extends Component {
 	setGameOverScores() {
 		const scores = this.blokusGame.getPlayersScore();
 
+		//禁用遊戲畫面的點擊
+		this.blockInputEvents.enabled = true;
+
 		this.Popup.active = true;
-		const socresUI = this.Popup.getComponentsInChildren(Label);
+		const socresUI = this.Popup.children.filter(
+			(child) => child.name === "Player"
+		);
 
 		for (let index = 0; index < 4; index++) {
-			socresUI[index].string = `${scores[index].id}  ${scores[index].score} 分`;
+			const label = socresUI[index].getComponentsInChildren(Label);
+			label[0].string = `${scores[index].id}`;
+			label[1].string = `${scores[index].score}`;
 		}
 	}
 
@@ -279,11 +296,13 @@ export class game extends Component {
 
 	//回主畫面
 	toHome() {
+		this.blockInputEvents = false;
 		director.loadScene("home");
 	}
 
 	//再來一場
 	reStart() {
+		this.blockInputEvents = false;
 		director.loadScene("game");
 	}
 }
