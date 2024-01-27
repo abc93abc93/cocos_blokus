@@ -13,8 +13,8 @@
 const audioList = {
 	/** 翻轉按鈕 */
 	"button-vertical": "button-vertical",
-	/** 彈跳階梯 */
-	jumpStair: "jumpStair",
+	/** pass按鈕 */
+	"button-giveup": "button-giveup",
 	/** 天花板陷阱 */
 	topTrap: "topTrap",
 	/** 死掉 */

@@ -120,12 +120,23 @@ export class player extends Component {
 	flipChoesdChess(direc: "vertical" | "horizon", cb) {
 		const choesdChess = this.node.getChildByName("ChosedChess");
 		const Chess = choesdChess.getChildByName("Chess");
+		let direction = direc;
 
-		if (direc === "horizon") {
+		if (Math.abs(Chess.angle / 90) % 2 !== 0) {
+			if (direc === "horizon") {
+				direction = "vertical";
+			} else {
+				direction = "horizon";
+			}
+		}
+
+		if (direction === "horizon") {
 			tween(Chess)
 				.to(
 					1,
-					{ scale: new Vec3(-Chess.scale.x, Chess.scale.y, 1) },
+					{
+						scale: new Vec3(-Chess.scale.x, Chess.scale.y, 1),
+					},
 					{ easing: "quartOut" }
 				)
 				.call(() => {
@@ -136,7 +147,9 @@ export class player extends Component {
 			tween(Chess)
 				.to(
 					1,
-					{ scale: new Vec3(Chess.scale.x, -Chess.scale.y, 1) },
+					{
+						scale: new Vec3(Chess.scale.x, -Chess.scale.y, 1),
+					},
 					{ easing: "quartOut" }
 				)
 				.call(() => {

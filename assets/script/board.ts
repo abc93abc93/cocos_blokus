@@ -126,7 +126,7 @@ export class board extends Component {
 					break;
 				case 5:
 					resources.load(
-						"textures/Game/block/block5/spriteFrame",
+						"textures/Game/block/block6/spriteFrame",
 						SpriteFrame,
 						(err: any, spriteFrame) => {
 							this._render_matrix[x][y].getComponent(Sprite).spriteFrame =
@@ -139,13 +139,16 @@ export class board extends Component {
 	}
 
 	renderPreViewBoard(X, Y, _chess_vector) {
-		_chess_vector.forEach(([x, y]) => {
-			this._render_matrix[X + x][Y + y].getComponent(Sprite).color = new Color(
-				233,
-				50,
-				10
-			);
-		});
+		resources.load(
+			"textures/Game/block/block5/spriteFrame",
+			SpriteFrame,
+			(err: any, spriteFrame) => {
+				_chess_vector.forEach(([x, y]) => {
+					this._render_matrix[X + x][Y + y].getComponent(Sprite).spriteFrame =
+						spriteFrame;
+				});
+			}
+		);
 	}
 
 	clickNode(event: EventTouch) {}

@@ -91,9 +91,11 @@ export class game extends Component {
 
 	//旋轉棋子
 	handlerPlayerRotate(direc: "clockwise" | "counterclockwise") {
-		if (this.chess_rotate) return;
+		if (this.chess_flip || this.chess_rotate) return;
 
 		this.chess_rotate = true;
+
+		this.AudioControl.playAudio("button-vertical");
 		//棋子旋轉
 		this.blokusGame.setChosedRotate(direc);
 		//棋盤篩選可以放的位置
@@ -118,8 +120,9 @@ export class game extends Component {
 
 	//翻轉棋子
 	handlerPlayerFlip(direc: "vertical" | "horizon") {
-		if (this.chess_flip) return;
+		if (this.chess_flip || this.chess_rotate) return;
 		this.chess_flip = true;
+
 		this.AudioControl.playAudio("button-vertical");
 		//棋子翻轉
 		this.blokusGame.setChosedFlip(direc);
@@ -175,7 +178,6 @@ export class game extends Component {
 	//放完換玩家
 	handlerPlayerchange() {
 		const gameOver = this.blokusGame.isGameGoing();
-		console.log(this.blokusGame.curPlayer, gameOver);
 
 		if (gameOver) {
 			this.setGameOverScores();
@@ -231,7 +233,13 @@ export class game extends Component {
 		//換玩家條件 -> 玩家按passed
 		if (event.target.name === "button-giveup") {
 			const playerIndex = event.target.parent.getComponent(player).index;
-			if (playerIndex !== this.blokusGame.curPlayer) return;
+			if (
+				playerIndex !== this.blokusGame.curPlayer ||
+				this.blokusGame.players[this.blokusGame.curPlayer].passed
+			) {
+				return;
+			}
+			this.AudioControl.playAudio("button-giveup");
 			this.handlerPlayerPassed();
 		}
 

@@ -39,6 +39,13 @@ export class BlokusGame {
 	//設置玩家選中棋子
 	setPlayerChosedChess(chessIndex) {
 		this.players[this.curPlayer].chosed = chessIndex;
+
+		const chosedIndex: number = this.players[this.curPlayer].chosed;
+		const chosedChess = this.players[this.curPlayer].chesses[chosedIndex];
+
+		chosedChess.matrix = chosedChess.old_matrix;
+		chosedChess.center = chosedChess.old_center;
+		chosedChess.vector = chosedChess.setVector();
 	}
 
 	//設置可以放的位置
@@ -220,7 +227,6 @@ export class BlokusGame {
 		const noChess = this.players.some((player) =>
 			player.chesses.every((chess) => chess.isDone === true)
 		);
-		console.log("allPassed", allPassed, "noChess", noChess);
 
 		return allPassed || noChess;
 	}
@@ -506,6 +512,8 @@ export class Player {
 }
 
 export class Chess {
+	old_matrix: number[][];
+	old_center: [number, number];
 	matrix: number[][];
 	center: [number, number];
 	position: [number, number];
@@ -513,6 +521,8 @@ export class Chess {
 	isDone: boolean;
 
 	constructor({ matrix, center, position }: ChessData) {
+		this.old_matrix = matrix;
+		this.old_center = center;
 		this.matrix = matrix;
 		this.center = center;
 		this.position = position;
@@ -583,9 +593,7 @@ export class Chess {
 		};
 
 		// 水平翻轉
-		if (direction === "horizon") {
-			console.log("水平翻");
-
+		if (direction === "vertical") {
 			for (let i = 0; i < m; i++) {
 				for (let j = 0; j < n; j++) {
 					flippedMatrix[i][j] = matrix[i][n - 1 - j];
@@ -595,8 +603,7 @@ export class Chess {
 			flippedCenter.col = n - 1 - center[1];
 		}
 		// 垂直翻轉
-		else if (direction === "vertical") {
-			console.log("垂直翻翻");
+		else if (direction === "horizon") {
 			for (let i = 0; i < m; i++) {
 				for (let j = 0; j < n; j++) {
 					flippedMatrix[i][j] = matrix[m - 1 - i][j];
