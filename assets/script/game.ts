@@ -42,12 +42,22 @@ export class game extends Component {
 	@property(Node)
 	Popup: Node;
 
+	@property(Node)
+	sound: Node;
+
+	@property(Node)
+	silence: Node;
+
+	@property(Node)
+	FixPop: Node;
+
 	blokusGame = null;
 	blockInputEvents = null;
 
 	//棋子選轉
 	chess_rotate = false;
 	chess_flip = false;
+	isMusic = true;
 
 	onLoad() {
 		//載入遊戲
@@ -153,6 +163,7 @@ export class game extends Component {
 
 	//處理選中的棋子
 	handlerChessChosed(chessIndex) {
+		this.AudioControl.playAudio("pick-chess");
 		this.blokusGame.setPlayerChosedChess(chessIndex);
 		//棋盤篩選可以放的位置
 		this.blokusGame.setChosablePosition();
@@ -352,6 +363,7 @@ export class game extends Component {
 
 		//當玩家點選確定按鈕
 		if (event.target.name === "CheckBtn") {
+			this.AudioControl.playAudio("put-chess");
 			//設定資料位置
 			this.blokusGame.setConfirmPosition();
 			//隱藏確認按鈕
@@ -377,12 +389,14 @@ export class game extends Component {
 	//回主畫面
 	toHome() {
 		this.blockInputEvents = false;
+		this.AudioControl.playAudio("default-button");
 		director.loadScene("home");
 	}
 
 	//再來一場
 	reStart() {
 		this.blockInputEvents = false;
+		this.AudioControl.playAudio("default-button");
 		director.loadScene("game");
 	}
 
@@ -390,6 +404,16 @@ export class game extends Component {
 	setMusic() {
 		this.AudioControl.playAudio("default-button");
 
-		this.AudioControl.stopAudio("game-music");
+		if (this.isMusic) {
+			this.silence.active = true;
+			this.sound.active = false;
+			this.AudioControl.turnOffAudio("game-music");
+			this.isMusic = !this.isMusic;
+		} else {
+			this.silence.active = false;
+			this.sound.active = true;
+			this.AudioControl.turnOnAudio("game-music");
+			this.isMusic = !this.isMusic;
+		}
 	}
 }

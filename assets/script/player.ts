@@ -5,7 +5,6 @@ import {
 	EventTouch,
 	instantiate,
 	Vec3,
-	UITransform,
 	Sprite,
 	Color,
 	tween,
@@ -13,6 +12,7 @@ import {
 	SpriteFrame,
 } from "cc";
 import { chesses } from "./chesses";
+import { chess } from "./chess";
 const { ccclass, property } = _decorator;
 
 @ccclass("player")
@@ -84,16 +84,20 @@ export class player extends Component {
 	setChoesdChess(chosedChessIndex) {
 		const chessboard = this.node.getChildByName("Chesses");
 		const choseChessNode = chessboard.children[chosedChessIndex];
+
 		let node = instantiate(choseChessNode);
+
 		node.setScale(new Vec3(2, 2, 0));
 		const choesdChess = this.node.getChildByName("ChosedChess");
 		choesdChess.removeAllChildren();
 		node.setPosition(new Vec3(0, -15, 0));
 
 		//中心點格子加深
-		// if (x === centerX && y === centerY) {
-		// 	block.getComponent(Sprite).color = new Color(200, 200, 200);
-		// }
+		const ts = choseChessNode.getComponent(chess); //取點到的棋子的ts (因為複製過去ts的值會重置)
+		const darkNode = node
+			.getComponentsInChildren(Sprite)
+			.find((block, index) => ts.index === index);
+		darkNode.color = new Color(200, 200, 200);
 
 		choesdChess.addChild(node);
 	}

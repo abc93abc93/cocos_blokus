@@ -292,7 +292,11 @@ export class Board {
 		const availableCorner = this.findAvailableCorner(allCorner);
 
 		for (let i = 0; i < availableCorner.length; i++) {
-			const places = this.findChessPosition(chessNode, availableCorner[i]);
+			const places = this.findChessPosition(
+				chessNode,
+				availableCorner[i],
+				playerIndex
+			);
 			if (places.length === 0) continue;
 			array.push(...places);
 		}
@@ -301,7 +305,9 @@ export class Board {
 	}
 
 	//從可放置的角落點找到所選取block可放置的點
-	findChessPosition(chessNode, point) {
+	findChessPosition(chessNode, point, playerChessNum) {
+		console.log(playerChessNum);
+
 		const points = [];
 
 		chessNode.vector.forEach((element, index) => {
@@ -322,22 +328,34 @@ export class Board {
 				) {
 					if (this._matrix[elementX + biasX][elementY + biasY] === 0) {
 						if (elementX + biasX + 1 < this._matrix.length) {
-							if (this._matrix[elementX + biasX + 1][elementY + biasY] !== 0)
+							if (
+								this._matrix[elementX + biasX + 1][elementY + biasY] ===
+								playerChessNum
+							)
 								return false;
 						}
 
 						if (elementX + biasX - 1 >= 0) {
-							if (this._matrix[elementX + biasX + -1][elementY + biasY] !== 0)
+							if (
+								this._matrix[elementX + biasX + -1][elementY + biasY] ===
+								playerChessNum
+							)
 								return false;
 						}
 
 						if (elementY + biasY + 1 < this._matrix.length) {
-							if (this._matrix[elementX + biasX][elementY + biasY + 1] !== 0)
+							if (
+								this._matrix[elementX + biasX][elementY + biasY + 1] ===
+								playerChessNum
+							)
 								return false;
 						}
 
 						if (elementY + biasY - 1 >= 0) {
-							if (this._matrix[elementX + biasX][elementY + biasY - 1] !== 0)
+							if (
+								this._matrix[elementX + biasX][elementY + biasY - 1] ===
+								playerChessNum
+							)
 								return false;
 						}
 						return true;
@@ -401,12 +419,6 @@ export class Board {
 
 		for (let index = 0; index < array.length; index++) {
 			const [x, y] = array[index];
-
-			if (x - 1 >= 0 && this._matrix[x - 1][y] !== 0) continue;
-			if (y - 1 >= 0 && this._matrix[x][y - 1] !== 0) continue;
-			if (x + 1 < this._matrix.length && this._matrix[x + 1][y] !== 0) continue;
-			if (y + 1 <= this._matrix.length && this._matrix[x][y + 1] !== 0)
-				continue;
 
 			position[`${[x, y]}`] = [x, y];
 		}

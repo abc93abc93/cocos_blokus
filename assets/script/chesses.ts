@@ -39,6 +39,10 @@ export class chesses extends Component {
 
 		const width = array.length;
 		const height = array[0].length;
+		let count = -1;
+
+		node.addComponent(UITransform).setContentSize(width * size, height * size);
+		node.addComponent(chess);
 
 		for (let x = 0; x < array.length; x++) {
 			for (let y = 0; y < array[x].length; y++) {
@@ -59,16 +63,16 @@ export class chesses extends Component {
 					new Vec3((x - centerX) * size, (y - centerY) * size, 0)
 				);
 
+				count += 1;
+
 				//中心點格子加深
 				if (x === centerX && y === centerY) {
+					node.getComponent(chess).index = count;
 				}
 
 				node.addChild(block);
 			}
 		}
-
-		node.addComponent(UITransform).setContentSize(width * size, height * size);
-		node.addComponent(chess);
 
 		node.name = "Chess";
 

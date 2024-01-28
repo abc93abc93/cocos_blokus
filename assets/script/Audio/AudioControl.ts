@@ -42,4 +42,31 @@ export class AudioControl extends Component {
 			console.warn("Audio source not found for: ", audioName);
 		}
 	}
+
+	turnOffAudio(audioName: keyof AudioList) {
+		const audioSource = this.audioSources.find(
+			(source) => source.node.name === audioName
+		);
+		console.warn(audioSource);
+		if (audioSource) {
+			audioSource.volume = 0;
+		} else {
+			console.warn("Audio source not found for: ", audioName);
+		}
+	}
+
+	turnOnAudio(audioName: keyof AudioList) {
+		const audioSource = this.audioSources.find(
+			(source) => source.node.name === audioName
+		);
+		console.warn(audioSource);
+
+		if (audioSource) {
+			audioName === "game-music"
+				? (audioSource.volume = 0.3)
+				: (audioSource.volume = 1);
+		} else {
+			console.warn("Audio source not found for: ", audioName);
+		}
+	}
 }
