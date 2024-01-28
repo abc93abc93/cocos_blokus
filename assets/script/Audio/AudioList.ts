@@ -1,36 +1,16 @@
-// export default {
-//     /** 翻轉地板 */
-//     breakStair: 'breakStair',
-//     /** 彈跳階梯 */
-//     jumpStair: 'jumpStair',
-//     /** 天花板陷阱 */
-//     topTrap: 'topTrap',
-//     /** 死掉 */
-//     die: 'die',
-
-// }
-
 const audioList = {
 	/** 翻轉按鈕 */
-	"button-vertical": "button-vertical",
+	"transform-button": "transform-button",
 	/** pass按鈕 */
-	"button-giveup": "button-giveup",
-	/** 天花板陷阱 */
-	topTrap: "topTrap",
-	/** 死掉 */
-	die: "die",
-	/** 一般階梯 */
-	normalStair: "normalStair",
-	/** 陷阱階梯 */
-	trapStair: "trapStair",
-	/** 左右階梯 */
-	moveStair: "moveStair",
-	/** 大廳音樂 */
-	gameLobby: "gameLobby",
-	/** 按鈕音效 */
-	button: "button",
+	"giveup-button": "giveup-button",
+	/** 預設按鈕 */
+	"default-button": "default-button",
 	/** 遊戲音樂 */
-	gameDefault: "gameDefault",
+	"game-music": "game-music",
+	/** 選棋子 */
+	"pick-chess": "pick-chess",
+	/** 放棋子 */
+	"put-chess": "put-chess",
 };
 
 export default audioList;

@@ -75,6 +75,9 @@ export class game extends Component {
 		}
 
 		this.blockInputEvents = true;
+
+		//載入音效
+		this.AudioControl.playAudio("game-music");
 	}
 
 	//渲染玩家區塊 (DU)
@@ -95,7 +98,7 @@ export class game extends Component {
 
 		this.chess_rotate = true;
 
-		this.AudioControl.playAudio("button-vertical");
+		this.AudioControl.playAudio("transform-button");
 		//棋子旋轉
 		this.blokusGame.setChosedRotate(direc);
 		//棋盤篩選可以放的位置
@@ -123,7 +126,7 @@ export class game extends Component {
 		if (this.chess_flip || this.chess_rotate) return;
 		this.chess_flip = true;
 
-		this.AudioControl.playAudio("button-vertical");
+		this.AudioControl.playAudio("transform-button");
 		//棋子翻轉
 		this.blokusGame.setChosedFlip(direc);
 		//棋盤篩選可以放的位置
@@ -171,6 +174,7 @@ export class game extends Component {
 	//Passed換玩家
 	handlerPlayerPassed() {
 		this.blokusGame.setPlayerPassed();
+		this.AudioControl.playAudio("giveup-button");
 
 		this.handlerPlayerchange();
 	}
@@ -239,7 +243,7 @@ export class game extends Component {
 			) {
 				return;
 			}
-			this.AudioControl.playAudio("button-giveup");
+
 			this.handlerPlayerPassed();
 		}
 
@@ -250,7 +254,8 @@ export class game extends Component {
 			const playerIndex = event.target.parent.getComponent(player).index;
 			if (
 				playerIndex !== this.blokusGame.curPlayer ||
-				!this.blokusGame.players[this.blokusGame.curPlayer].chosed
+				(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
+					this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
 			) {
 				return;
 			}
@@ -264,7 +269,8 @@ export class game extends Component {
 			const playerIndex = event.target.parent.getComponent(player).index;
 			if (
 				playerIndex !== this.blokusGame.curPlayer ||
-				!this.blokusGame.players[this.blokusGame.curPlayer].chosed
+				(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
+					this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
 			) {
 				return;
 			}
@@ -278,7 +284,8 @@ export class game extends Component {
 			const playerIndex = event.target.parent.getComponent(player).index;
 			if (
 				playerIndex !== this.blokusGame.curPlayer ||
-				!this.blokusGame.players[this.blokusGame.curPlayer].chosed
+				(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
+					this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
 			) {
 				return;
 			}
@@ -293,10 +300,12 @@ export class game extends Component {
 			const playerIndex = event.target.parent.getComponent(player).index;
 			if (
 				playerIndex !== this.blokusGame.curPlayer ||
-				!this.blokusGame.players[this.blokusGame.curPlayer].chosed
+				(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
+					this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
 			) {
 				return;
 			}
+
 			this.handlerPlayerFlip("horizon");
 		}
 
@@ -328,7 +337,7 @@ export class game extends Component {
 				);
 
 				//選染預覽畫面
-				boardTs.renderPreViewBoard(x, y, check);
+				boardTs.renderPreViewBoard(x, y, check, this.blokusGame.board._matrix);
 
 				//跳出確定按鍵
 				const width = this.Board.getComponent(UITransform).contentSize.width;
@@ -375,5 +384,12 @@ export class game extends Component {
 	reStart() {
 		this.blockInputEvents = false;
 		director.loadScene("game");
+	}
+
+	//音樂切換
+	setMusic() {
+		this.AudioControl.playAudio("default-button");
+
+		this.AudioControl.stopAudio("game-music");
 	}
 }

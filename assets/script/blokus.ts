@@ -187,7 +187,7 @@ export class BlokusGame {
 		const cheses = this.players[this.curPlayer].chesses;
 		const chosedIndex = this.players[this.curPlayer].chosed;
 
-		if (chosedIndex === null) return;
+		if (chosedIndex === null && chosedIndex !== 0) return;
 
 		cheses[chosedIndex].rotateMatrix(
 			cheses[chosedIndex].matrix,
@@ -201,7 +201,7 @@ export class BlokusGame {
 		const cheses = this.players[this.curPlayer].chesses;
 		const chosedIndex = this.players[this.curPlayer].chosed;
 
-		if (chosedIndex === null) return;
+		if (chosedIndex === null && chosedIndex !== 0) return;
 
 		if (direc === "vertical") {
 			cheses[chosedIndex].flipMatrix(
@@ -499,6 +499,8 @@ export class Player {
 			if (this.chesses[index].isDone) continue;
 			score -= this.chesses[index].vector.length;
 		}
+
+		score += 89; //總棋子格數
 
 		const allDone = this.chesses.every((chess) => chess.isDone === true);
 		if (allDone) {

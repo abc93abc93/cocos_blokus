@@ -10,6 +10,7 @@ import {
 	Sprite,
 	resources,
 	SpriteFrame,
+	Color,
 } from "cc";
 const { ccclass, property } = _decorator;
 import { chess } from "./chess";
@@ -58,12 +59,17 @@ export class chesses extends Component {
 					new Vec3((x - centerX) * size, (y - centerY) * size, 0)
 				);
 
+				//中心點格子加深
+				if (x === centerX && y === centerY) {
+				}
+
 				node.addChild(block);
 			}
 		}
 
 		node.addComponent(UITransform).setContentSize(width * size, height * size);
 		node.addComponent(chess);
+
 		node.name = "Chess";
 
 		return node;
@@ -99,6 +105,4 @@ export class chesses extends Component {
 			this.node.addChild(chessNode);
 		}
 	}
-
-	update(deltaTime: number) {}
 }

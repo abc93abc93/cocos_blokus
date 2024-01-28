@@ -124,9 +124,11 @@ export class board extends Component {
 						}
 					);
 					break;
+
+				//可放置的格子
 				case 5:
 					resources.load(
-						"textures/Game/block/block6/spriteFrame",
+						"textures/Game/pick/spriteFrame",
 						SpriteFrame,
 						(err: any, spriteFrame) => {
 							this._render_matrix[x][y].getComponent(Sprite).spriteFrame =
@@ -138,14 +140,31 @@ export class board extends Component {
 		});
 	}
 
-	renderPreViewBoard(X, Y, _chess_vector) {
+	renderPreViewBoard(X, Y, _chess_vector, _matrix) {
+		//預覽格子
 		resources.load(
 			"textures/Game/block/block5/spriteFrame",
 			SpriteFrame,
 			(err: any, spriteFrame) => {
 				_chess_vector.forEach(([x, y]) => {
+					if (x === 0 && y === 0) return;
+					if (_matrix[X + x][Y + y] === 5) return;
 					this._render_matrix[X + x][Y + y].getComponent(Sprite).spriteFrame =
 						spriteFrame;
+				});
+			}
+		);
+
+		//選中的
+		resources.load(
+			"textures/Game/picked/spriteFrame",
+			SpriteFrame,
+			(err: any, spriteFrame) => {
+				_chess_vector.forEach(([x, y]) => {
+					if ((x === 0 && y === 0) || _matrix[X + x][Y + y] === 5) {
+						this._render_matrix[X + x][Y + y].getComponent(Sprite).spriteFrame =
+							spriteFrame;
+					}
 				});
 			}
 		);
