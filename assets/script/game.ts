@@ -5,16 +5,12 @@ import {
 	Component,
 	Node,
 	EventTouch,
-	Sprite,
 	Color,
 	Vec3,
 	UITransform,
 	Label,
-	sys,
 	director,
 	BlockInputEvents,
-	resources,
-	SpriteFrame,
 } from "cc";
 import { board } from "./board";
 import { playerSection } from "./playerSection";

@@ -1071,7 +1071,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 60,
-      "height": 33
+      "height": 35
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1101,7 +1101,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "dd8665d3-e768-4d5b-87c4-83c644bdb326@f9941",
+      "__uuid__": "aa9aad2e-8a71-471e-ab4c-f415759d35ae@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 1,
@@ -1165,7 +1165,7 @@
       "a": 255
     },
     "_normalSprite": {
-      "__uuid__": "dd8665d3-e768-4d5b-87c4-83c644bdb326@f9941",
+      "__uuid__": "aa9aad2e-8a71-471e-ab4c-f415759d35ae@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_hoverSprite": null,
@@ -8246,7 +8246,7 @@
       "b": 255,
       "a": 255
     },
-    "_string": "PLAYE",
+    "_string": "PLAYER",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
     "_actualFontSize": 30,
@@ -9374,7 +9374,7 @@
     "_string": "YOU",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 13,
+    "_actualFontSize": 20,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 15,
@@ -9714,7 +9714,7 @@
     "_string": "PLAYER",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 13,
+    "_actualFontSize": 14,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 15,
@@ -10054,7 +10054,7 @@
     "_string": "PLAYER",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 13,
+    "_actualFontSize": 14,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 15,
@@ -10394,7 +10394,7 @@
     "_string": "PLAYER",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 13,
+    "_actualFontSize": 14,
     "_fontSize": 20,
     "_fontFamily": "Arial",
     "_lineHeight": 15,
