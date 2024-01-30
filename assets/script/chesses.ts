@@ -88,8 +88,8 @@ export class chesses extends Component {
 
 		for (let index = 0; index < chessData.length; index++) {
 			const chessNode = this.createChess(
-				chessData[index].matrix,
-				chessData[index].center,
+				chessData[index].old_matrix,
+				chessData[index].old_center,
 				chessSize,
 				playerIndex
 			);

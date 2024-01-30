@@ -36,9 +36,13 @@ export class playerSection extends Component {
 		});
 	}
 
-	renderCurPlayerChoesdChess(curPlayerIndex, chosedChessIndex) {
+	renderCurPlayerChoesdChess(curPlayerIndex, chosedChessIndex, vector, center) {
 		const allPlayerTs = this.node.getComponentsInChildren(player);
-		allPlayerTs[curPlayerIndex].setChoesdChess(chosedChessIndex);
+		allPlayerTs[curPlayerIndex].setChoesdChess(
+			chosedChessIndex,
+			vector,
+			center
+		);
 	}
 
 	clearCurPlayerChoesdChess(curPlayerIndex) {

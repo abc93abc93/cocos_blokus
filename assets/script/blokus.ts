@@ -1,6 +1,5 @@
 import { chessesData } from "./Data/chess";
 import { type ChessData } from "./Data/chess";
-import DataControlPanel from "../scripts/DataControlPanel";
 
 export class BlokusGame {
 	board: Board;
@@ -22,8 +21,6 @@ export class BlokusGame {
 		//遊戲預加載的東東
 		this.board.init();
 		this.players.forEach((player) => player.init(this.curPlayer));
-
-		DataControlPanel.init();
 	}
 
 	setPlayerTurn() {
@@ -43,6 +40,7 @@ export class BlokusGame {
 		const chosedIndex: number = this.players[this.curPlayer].chosed;
 		const chosedChess = this.players[this.curPlayer].chesses[chosedIndex];
 
+		//資料要復原
 		chosedChess.matrix = chosedChess.old_matrix;
 		chosedChess.center = chosedChess.old_center;
 		chosedChess.vector = chosedChess.setVector();
@@ -282,7 +280,7 @@ export class Board {
 		const [x, y] = initPlace;
 
 		if (this._matrix[x][y] === 0) {
-			const places = this.findChessPosition(chessNode, initPlace);
+			const places = this.findChessPosition(chessNode, initPlace, playerIndex);
 			if (places.length === 0) return array;
 			array.push(...places);
 			return array;
@@ -306,8 +304,6 @@ export class Board {
 
 	//從可放置的角落點找到所選取block可放置的點
 	findChessPosition(chessNode, point, playerChessNum) {
-		console.log(playerChessNum);
-
 		const points = [];
 
 		chessNode.vector.forEach((element, index) => {

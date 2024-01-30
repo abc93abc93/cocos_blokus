@@ -10,6 +10,9 @@ import {
 	tween,
 	resources,
 	SpriteFrame,
+	Label,
+	Prefab,
+	UITransform,
 } from "cc";
 import { chesses } from "./chesses";
 import { chess } from "./chess";
@@ -17,6 +20,9 @@ const { ccclass, property } = _decorator;
 
 @ccclass("player")
 export class player extends Component {
+	@property(Prefab)
+	ChessBlock: Prefab;
+
 	id = null;
 	index = null;
 	color = null;
@@ -24,14 +30,20 @@ export class player extends Component {
 	chosed = null;
 
 	protected onLoad(): void {
+		resources.preload("textures/Game/block/block1/spriteFrame", SpriteFrame);
 		resources.preload("textures/Game/status/none/spriteFrame", SpriteFrame);
 		resources.preload("textures/Game/status/play/spriteFrame", SpriteFrame);
 		resources.preload("textures/Game/status/pass/spriteFrame", SpriteFrame);
 	}
 
 	start() {
+		this.setPlayerName();
 		this.setChess();
 		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
+	}
+
+	setPlayerName() {
+		this.node.getChildByName("Name").getComponent(Label).string = this.id;
 	}
 
 	setNewColor() {
@@ -43,6 +55,10 @@ export class player extends Component {
 					spriteFrame;
 			}
 		);
+	}
+
+	getIndex() {
+		return this.index;
 	}
 
 	setOriginColor() {
@@ -81,13 +97,29 @@ export class player extends Component {
 		}
 	}
 
-	setChoesdChess(chosedChessIndex) {
+	//設置選中的旗子
+	setChoesdChess(chosedChessIndex, vector, center) {
 		const chessboard = this.node.getChildByName("Chesses");
 		const choseChessNode = chessboard.children[chosedChessIndex];
 
-		let node = instantiate(choseChessNode);
+		const node = new Node();
 
-		node.setScale(new Vec3(2, 2, 0));
+		vector.forEach((vec) => {
+			const [x, y] = vec;
+			const [centerX, centerY] = center;
+			let block = instantiate(this.ChessBlock);
+			const url = `textures/Game/block/block1/spriteFrame`;
+
+			resources.load(url, SpriteFrame, (err: any, spriteFrame) => {
+				block.getComponent(Sprite).spriteFrame = spriteFrame;
+			});
+
+			block.getComponent(UITransform).setContentSize(20, 20);
+			block.setPosition(new Vec3(x * 20, y * 20, 0));
+			node.addChild(block);
+		});
+
+		// node.setScale(new Vec3(2, 2, 0));
 		const choesdChess = this.node.getChildByName("ChosedChess");
 		choesdChess.removeAllChildren();
 		node.setPosition(new Vec3(0, -15, 0));
@@ -99,6 +131,8 @@ export class player extends Component {
 			.find((block, index) => ts.index === index);
 		darkNode.color = new Color(200, 200, 200);
 
+		console.log(node.getPosition().x, node.getPosition().y);
+		node.name = "Chess";
 		choesdChess.addChild(node);
 	}
 

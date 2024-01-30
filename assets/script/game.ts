@@ -1,5 +1,4 @@
-import { BlokusGame } from "./blokus";
-import { Player, Board } from "./blokus";
+import { BlokusGame, Player } from "./blokus";
 import {
 	_decorator,
 	Component,
@@ -18,6 +17,8 @@ import { player } from "./player";
 import { chess } from "./chess";
 import { boardBlock } from "./boardBlock";
 import { AudioControl } from "./Audio/AudioControl";
+import DataControlPanel from "./DataControlPanel";
+import randomNames from "./Data/computer";
 
 const { ccclass, property } = _decorator;
 
@@ -55,13 +56,24 @@ export class game extends Component {
 	chess_flip = false;
 	isMusic = true;
 
-	onLoad() {
+	//
+	changeTimer = null;
+
+	private player = null;
+
+	async onLoad() {
+		await DataControlPanel.init();
+		console.log(DataControlPanel.Profiles);
+
+		// await DataControlPanel.reloadProfilesData();
+		this.player = DataControlPanel.Profiles;
+
 		//載入遊戲
 		this.blokusGame = new BlokusGame(
-			new Player("PETER", 0, new Color(255, 232, 232), [0, 0]),
-			new Player("KIKI", 1, new Color(255, 247, 232), [0, 19]),
-			new Player("AMY", 2, new Color(242, 255, 242), [19, 19]),
-			new Player("BRIAN", 3, new Color(242, 255, 255), [19, 0])
+			new Player(this.player.nickname, 0, new Color(255, 232, 232), [0, 0]),
+			new Player(randomNames[0], 1, new Color(255, 247, 232), [0, 19]),
+			new Player(randomNames[1], 2, new Color(242, 255, 242), [19, 19]),
+			new Player(randomNames[2], 3, new Color(242, 255, 255), [19, 0])
 		);
 		this.blokusGame.init();
 		this.initBoardView(this.blokusGame.board); //棋盤要比player先載入不然會出事
@@ -72,6 +84,8 @@ export class game extends Component {
 	}
 
 	start() {
+		this.player = DataControlPanel.Profiles;
+
 		this.node.on(Node.EventType.TOUCH_START, this.clickNode, this);
 
 		//設置禁用點擊config
@@ -83,7 +97,7 @@ export class game extends Component {
 		this.blockInputEvents = true;
 
 		//載入音效
-		this.AudioControl.playAudio("game-music");
+		// this.AudioControl.playAudio("game-music");
 	}
 
 	//渲染玩家區塊 (DU)
@@ -164,10 +178,17 @@ export class game extends Component {
 		//棋盤篩選可以放的位置
 		this.blokusGame.setChosablePosition();
 
+		//渲染目前選中的棋子
 		const playerSectionTs = this.PlayerSection.getComponent(playerSection);
+		const chosedIndex =
+			this.blokusGame.players[this.blokusGame.curPlayer].chosed;
 		playerSectionTs.renderCurPlayerChoesdChess(
 			this.blokusGame.curPlayer,
-			this.blokusGame.players[this.blokusGame.curPlayer].chosed
+			this.blokusGame.players[this.blokusGame.curPlayer].chosed,
+			this.blokusGame.players[this.blokusGame.curPlayer].chesses[chosedIndex]
+				.vector,
+			this.blokusGame.players[this.blokusGame.curPlayer].chesses[chosedIndex]
+				.center
 		);
 
 		//渲染到畫面上給玩家看
@@ -203,6 +224,10 @@ export class game extends Component {
 			this.blokusGame.board._matrix_vector
 		);
 
+		if (!this.blokusGame.players[this.blokusGame.curPlayer].passed) {
+			this.AudioControl.playAudio("put-chess");
+		}
+
 		//如果玩家是電腦
 		if (
 			this.blokusGame.players[this.blokusGame.curPlayer].isComputer &&
@@ -213,16 +238,22 @@ export class game extends Component {
 			//重渲染電腦的棋子
 			playerSectionTs.renderCurPlayerChess(this.blokusGame.curPlayer);
 
+			if (this.changeTimer) clearTimeout(this.changeTimer);
+
+			const randomTime = Math.floor(Math.random() * 1000 + 1000);
 			//可能要優化會卡
-			setTimeout(() => {
+			this.changeTimer = setTimeout(() => {
 				this.handlerPlayerchange();
-			}, 2000);
+			}, randomTime);
 		}
 	}
 
 	//取得分數渲染到畫面上
 	setGameOverScores() {
-		const scores = this.blokusGame.getPlayersScore();
+		const scores = this.blokusGame.getPlayersScore(); //四個人的分數
+
+		//只存玩家一人的分數
+		DataControlPanel.updatePlayerScore(scores[0].score);
 
 		//禁用遊戲畫面的點擊
 		this.blockInputEvents = true;
@@ -241,81 +272,6 @@ export class game extends Component {
 
 	//玩家輪流玩
 	clickNode(event: EventTouch) {
-		//換玩家條件 -> 玩家按passed
-		if (event.target.name === "button-giveup") {
-			const playerIndex = event.target.parent.getComponent(player).index;
-			if (
-				playerIndex !== this.blokusGame.curPlayer ||
-				this.blokusGame.players[this.blokusGame.curPlayer].passed
-			) {
-				return;
-			}
-
-			this.handlerPlayerPassed();
-		}
-
-		//按下順旋轉按鈕
-		if (event.target.name === "button-clockwise") {
-			this.CheckBtn.active = false;
-
-			const playerIndex = event.target.parent.getComponent(player).index;
-			if (
-				playerIndex !== this.blokusGame.curPlayer ||
-				(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
-					this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
-			) {
-				return;
-			}
-			this.handlerPlayerRotate("clockwise");
-		}
-
-		//按下逆旋轉按鈕
-		if (event.target.name === "button-counterclockwise") {
-			this.CheckBtn.active = false;
-
-			const playerIndex = event.target.parent.getComponent(player).index;
-			if (
-				playerIndex !== this.blokusGame.curPlayer ||
-				(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
-					this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
-			) {
-				return;
-			}
-			this.handlerPlayerRotate("counterclockwise");
-		}
-
-		//按下垂直翻轉按鈕
-		if (event.target.name === "button-vertical") {
-			this.CheckBtn.active = false;
-
-			const playerIndex = event.target.parent.getComponent(player).index;
-			if (
-				playerIndex !== this.blokusGame.curPlayer ||
-				(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
-					this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
-			) {
-				return;
-			}
-
-			this.handlerPlayerFlip("vertical");
-		}
-
-		//按下水平翻轉按鈕
-		if (event.target.name === "button-horizon") {
-			this.CheckBtn.active = false;
-
-			const playerIndex = event.target.parent.getComponent(player).index;
-			if (
-				playerIndex !== this.blokusGame.curPlayer ||
-				(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
-					this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
-			) {
-				return;
-			}
-
-			this.handlerPlayerFlip("horizon");
-		}
-
 		//當玩家選到棋子
 		if (event.target.name === "Chess") {
 			this.CheckBtn.active = false;
@@ -359,7 +315,6 @@ export class game extends Component {
 
 		//當玩家點選確定按鈕
 		if (event.target.name === "CheckBtn") {
-			this.AudioControl.playAudio("put-chess");
 			//設定資料位置
 			this.blokusGame.setConfirmPosition();
 			//隱藏確認按鈕
@@ -380,6 +335,83 @@ export class game extends Component {
 			//更換玩家
 			this.handlerPlayerchange();
 		}
+	}
+
+	/** 玩家單人玩 **/
+	//換玩家條件 -> 玩家按passed
+	clickPassed(event) {
+		const playerIndex = event.target.parent.getComponent(player).index;
+
+		if (
+			playerIndex !== this.blokusGame.curPlayer ||
+			this.blokusGame.players[this.blokusGame.curPlayer].passed
+		) {
+			return;
+		}
+
+		this.handlerPlayerPassed();
+	}
+
+	//按下順旋轉按鈕
+	clickClockwise(event) {
+		const playerIndex = event.target.parent.getComponent(player).index;
+		this.CheckBtn.active = false;
+
+		if (
+			playerIndex !== this.blokusGame.curPlayer ||
+			(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
+				this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
+		) {
+			return;
+		}
+		this.handlerPlayerRotate("clockwise");
+	}
+
+	//按下逆旋轉按鈕
+	clickCounterClockwise(event) {
+		const playerIndex = event.target.parent.getComponent(player).index;
+		this.CheckBtn.active = false;
+
+		if (
+			playerIndex !== this.blokusGame.curPlayer ||
+			(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
+				this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
+		) {
+			return;
+		}
+		this.handlerPlayerRotate("counterclockwise");
+	}
+
+	//按下垂直翻轉按鈕
+	clickVertical(event) {
+		const playerIndex = event.target.parent.getComponent(player).index;
+		this.CheckBtn.active = false;
+
+		if (
+			playerIndex !== this.blokusGame.curPlayer ||
+			(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
+				this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
+		) {
+			return;
+		}
+
+		this.handlerPlayerFlip("vertical");
+	}
+
+	//按下水平翻轉按鈕
+	clickHorizon(event) {
+		const playerIndex = event.target.parent.getComponent(player).index;
+		this.CheckBtn.active = false;
+
+		if (
+			playerIndex !== this.blokusGame.curPlayer ||
+			(this.blokusGame.players[this.blokusGame.curPlayer].chosed === null &&
+				this.blokusGame.players[this.blokusGame.curPlayer].chosed !== 0)
+		) {
+			return;
+		}
+
+		this.handlerPlayerFlip("horizon");
 	}
 
 	//回主畫面
