@@ -97,7 +97,7 @@ export class game extends Component {
 		this.blockInputEvents = true;
 
 		//載入音效
-		// this.AudioControl.playAudio("game-music");
+		this.AudioControl.playAudio("game-music");
 	}
 
 	//渲染玩家區塊 (DU)
