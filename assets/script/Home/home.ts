@@ -119,6 +119,13 @@ export class home extends Component {
 			newName.trim();
 		DataControlPanel.saveProfilesData();
 		await DataControlPanel.init();
+		this.rankBoardList = await DataControlPanel.getRankBoardData(10);
+		this.RankList.children.forEach((row, index) => {
+			row.getChildByName("Name").getComponent(Label).string =
+				this.rankBoardList[index].name;
+			row.getChildByName("Score").getComponent(Label).string =
+				this.rankBoardList[index].record;
+		});
 		this.AudioControl.playAudio("default-button");
 		this.EditBox.parent.active = false;
 	}
